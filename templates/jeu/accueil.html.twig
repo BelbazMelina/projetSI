@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Le Code Secret des Plantes{% endblock %}
+
+{% block body %}
+    <div class="container text-center">
+        <h1 class="mt-5">Le Code Secret des Plantes</h1>
+
+        <div class="card mt-5">
+            <div class="card-body">
+                <h2>Règles du jeu</h2>
+                <p>Bienvenue dans "Le Code Secret des Plantes" ! Votre mission est de décrypter un code secret à partir de formules chimiques.</p>
+                <p>Vous devrez analyser 4 formules chimiques et compter le nombre total de molécules dans chacune d'elles.</p>
+                <p>À partir de ce nombre, trouvez la lettre correspondante dans l'alphabet (1=A, 2=B, etc.).</p>
+                <p>Combinez ces 4 lettres pour former le mot de passe qui fera pousser la bonne plante !</p>
+            </div>
+        </div>
+
+        <a href="{{ path('commencer_jeu') }}" class="btn btn-primary btn-lg mt-4">Commencer</a>
+    </div>
+{% endblock %}

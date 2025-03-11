@@ -179,4 +179,14 @@ class Plante
 
         return $this;
     }
+    public function getFormuleChimique(): ?string
+    {
+        return $this->formule_chimique;
+    }
+
+    public function setFormuleChimique(?string $formule_chimique): self
+    {
+        $this->formule_chimique = $formule_chimique;
+        return $this;
+    }
 }

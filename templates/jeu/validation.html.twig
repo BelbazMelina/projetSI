@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Validation du code{% endblock %}
+
+{% block body %}
+    <div class="container text-center">
+        <h1 class="mt-5">Entrez le code secret</h1>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <p>D'après vos calculs, le code devrait être :</p>
+                <h2 class="display-4">{{ mot_de_passe }}</h2>
+
+                <form action="{{ path('verifier') }}" method="post" class="mt-4">
+                    <div class="form-group">
+                        <label for="mot_de_passe">Confirmez ou modifiez le code :</label>
+                        <input type="text" id="mot_de_passe" name="mot_de_passe" class="form-control" value="{{ mot_de_passe }}" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg mt-3">Valider</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

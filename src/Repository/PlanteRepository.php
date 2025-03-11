@@ -40,4 +40,12 @@ class PlanteRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+    public function findRandomPlante(): ?Plante
+    {
+        return $this->createQueryBuilder('p')
+            ->orderBy('RANDOM()')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

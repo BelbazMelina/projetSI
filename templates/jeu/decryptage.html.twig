@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Décryptage des formules{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .molecule-formula {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        .molecule-info {
+            font-size: 1.2em;
+            margin: 15px 0;
+            color: #495057;
+        }
+        .timer {
+            font-size: 1.5em;
+            color: #dc3545;
+            margin: 15px 0;
+        }
+        .answer-input {
+            max-width: 200px;
+            margin: 20px auto;
+            font-size: 1.2em;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1 class="text-center my-4">Décryptage des formules</h1>
+
+        {% if molecules|length > 0 %}
+            <!-- Affichage de la formule -->
+            <div id="molecule-container" class="text-center">
+                <!-- Formule chimique mise en évidence -->
+                <div class="molecule-formula" id="molecule-formula">
+                    {{ molecules[0].formuleChimique }}
+                </div>
+
+                <!-- Image de la molécule -->
+                <div class="molecule-image">
+                    <img id="molecule-image" src="/images/{{ molecules[0].image }}"
+                         alt="Image de la molécule"
+                         style="max-width: 300px; margin: 20px auto;">
+                </div>
+
+                <!-- Information sur la molécule -->
+                <p class="molecule-info" id="molecule-info">
+                    {{ molecules[0].information }}
+                </p>
+            </div>
+
+            <!-- Timer -->
+            <div class="timer text-center">
+                Temps restant : <span id="time-left">5</span> secondes
+            </div>
+
+            <!-- Zone de réponse -->
+            <div id="answer-zone" class="text-center mt-4">
+                <div class="form-group">
+                    <label for="code-input">
+                        <strong>Comptez le nombre total d'atomes et trouvez la lettre correspondante</strong><br>
+                        (Exemple : 15 atomes = lettre O)
+                    </label>
+                    <input type="text"
+                           id="code-input"
+                           class="form-control answer-input"
+                           maxlength="1"
+                           placeholder="Entrez la lettre">
+                </div>
+                <button id="validate-button" class="btn btn-primary mt-3">Valider</button>
+            </div>
+        {% else %}
+            <p class="text-center">Aucune molécule trouvée.</p>
+        {% endif %}
+    </div>
+{% endblock %}
