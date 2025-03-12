@@ -6,40 +6,27 @@ use App\Repository\CadenasRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CadenasRepository::class)]
+#[ORM\Table(name: 'cadenas')]
 class Cadenas
 {
     #[ORM\Id]
-    #[ORM\Column(type: "integer")]
-    #[ORM\GeneratedValue(strategy: "AUTO")]
-    private ?int $id = null;
-
-    #[ORM\Column]
-    private ?int $idCadenas = null;
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id= null;
 
     #[ORM\Column(length: 50)]
     private ?string $motSecret = null;
 
-    #[ORM\Column(length: 200)]
+    #[ORM\Column(length: 200, nullable: true)]
     private ?string $image = null;
 
-    #[ORM\ManyToOne(inversedBy: 'cadenas')]
-    private ?Plante $idPlante = null;
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    #[ORM\ManyToOne(targetEntity: Plante::class, inversedBy: 'cadenas')]
+    #[ORM\JoinColumn(referencedColumnName: 'id', nullable: false)]
+    private ?Plante $plante = null;
 
     public function getIdCadenas(): ?int
     {
         return $this->idCadenas;
-    }
-
-    public function setIdCadenas(int $idCadenas): static
-    {
-        $this->idCadenas = $idCadenas;
-
-        return $this;
     }
 
     public function getMotSecret(): ?string
@@ -47,10 +34,9 @@ class Cadenas
         return $this->motSecret;
     }
 
-    public function setMotSecret(string $motSecret): static
+    public function setMotSecret(string $motSecret): self
     {
         $this->motSecret = $motSecret;
-
         return $this;
     }
 
@@ -59,22 +45,29 @@ class Cadenas
         return $this->image;
     }
 
-    public function setImage(string $image): static
+    public function setImage(?string $image): self
     {
         $this->image = $image;
-
         return $this;
     }
 
-    public function getIdPlante(): ?Plante
+    public function getPlante(): ?Plante
     {
-        return $this->idPlante;
+        return $this->plante;
+    }
+    public function getId(): ?Integer
+    {
+        return $this->id;
+    }
+    public function setId(?int $id): ?self
+    {
+        $this->id=$id;
+        return $this;
     }
 
-    public function setIdPlante(?Plante $idPlante): static
+    public function setPlante(?Plante $plante): self
     {
-        $this->idPlante = $idPlante;
-
+        $this->plante = $plante;
         return $this;
     }
 }

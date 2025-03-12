@@ -5,24 +5,9 @@
 {% block body %}
     <div class="container text-center">
         <h1>{{ isSuccess ? 'Bien joué !' : 'Game Over !' }}</h1>
-
-        <div class="result-image">
-            <img src="{{ asset('images/' ~ (isSuccess ? plante.image : 'plante-carnivore.png')) }}"
-                 alt="{{ isSuccess ? plante.nom : 'Plante carnivore' }}"
-                 class="img-fluid">
-        </div>
-
-        <p class="result-message">
-            {{ isSuccess ? 'Tu as trouvé le bon code !' : 'Tu n\'as pas trouvé le bon code...' }}
-        </p>
-
-        <p class="score">Votre score : {{ score }}</p>
-
-        <div class="actions">
-            <a href="{{ path('commencer_jeu') }}" class="btn btn-primary">
-                {{ isSuccess ? 'Rejouer' : 'Réessayer' }}
-            </a>
-            <a href="{{ path('accueil') }}" class="btn btn-secondary">Retour à l'accueil</a>
-        </div>
+        <p>Votre score : {{ score }}</p>
+        {% if isSuccess %}
+            <a href="{{ path('commencer_jeu') }}" class="btn btn-primary">Rejouer</a>
+        {% endif %}
     </div>
 {% endblock %}

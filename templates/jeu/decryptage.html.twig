@@ -2,83 +2,111 @@
 
 {% block title %}Décryptage des formules{% endblock %}
 
-{% block stylesheets %}
-    {{ parent() }}
-    <style>
-        .molecule-formula {
-            font-size: 2.5em;
-            font-weight: bold;
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            display: inline-block;
-        }
-        .molecule-info {
-            font-size: 1.2em;
-            margin: 15px 0;
-            color: #495057;
-        }
-        .timer {
-            font-size: 1.5em;
-            color: #dc3545;
-            margin: 15px 0;
-        }
-        .answer-input {
-            max-width: 200px;
-            margin: 20px auto;
-            font-size: 1.2em;
-        }
-    </style>
-{% endblock %}
-
 {% block body %}
     <div class="container">
         <h1 class="text-center my-4">Décryptage des formules</h1>
 
-        {% if molecules|length > 0 %}
-            <!-- Affichage de la formule -->
-            <div id="molecule-container" class="text-center">
-                <!-- Formule chimique mise en évidence -->
-                <div class="molecule-formula" id="molecule-formula">
-                    {{ molecules[0].formuleChimique }}
-                </div>
-
-                <!-- Image de la molécule -->
-                <div class="molecule-image">
-                    <img id="molecule-image" src="/images/{{ molecules[0].image }}"
-                         alt="Image de la molécule"
-                         style="max-width: 300px; margin: 20px auto;">
-                </div>
-
-                <!-- Information sur la molécule -->
-                <p class="molecule-info" id="molecule-info">
-                    {{ molecules[0].information }}
-                </p>
+        <div id="game-container" class="text-center">
+            <!-- Chronomètre global -->
+            <div class="timer mb-4">
+                Temps restant : <span id="global-timer">5:00</span>
             </div>
 
-            <!-- Timer -->
-            <div class="timer text-center">
-                Temps restant : <span id="time-left">5</span> secondes
+            <!-- Formule chimique -->
+            <div id="molecule-container" class="text-center">
+                <div class="card mx-auto" style="max-width: 600px;">
+                    <div class="card-body">
+                        <h2 id="molecule-formula" class="card-title"></h2>
+                        <img id="molecule-image" src="" alt="Image de la molécule" class="img-fluid my-3" style="max-width: 300px;">
+                        <p id="molecule-info" class="card-text"></p>
+                    </div>
+                </div>
             </div>
 
             <!-- Zone de réponse -->
             <div id="answer-zone" class="text-center mt-4">
                 <div class="form-group">
-                    <label for="code-input">
-                        <strong>Comptez le nombre total d'atomes et trouvez la lettre correspondante</strong><br>
-                        (Exemple : 15 atomes = lettre O)
-                    </label>
-                    <input type="text"
-                           id="code-input"
-                           class="form-control answer-input"
-                           maxlength="1"
-                           placeholder="Entrez la lettre">
+                    <label for="final-code" class="mb-2">Entrez le mot secret :</label>
+                    <input type="text" id="final-code" class="form-control mx-auto" style="max-width: 200px;" maxlength="4">
                 </div>
                 <button id="validate-button" class="btn btn-primary mt-3">Valider</button>
             </div>
-        {% else %}
-            <p class="text-center">Aucune molécule trouvée.</p>
-        {% endif %}
+        </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const molecules = {{ molecules|json_encode|raw }};
+            const globalTimerElement = document.getElementById('global-timer');
+            const moleculeContainer = document.getElementById('molecule-container');
+            const moleculeFormula = document.getElementById('molecule-formula');
+            const moleculeImage = document.getElementById('molecule-image');
+            const moleculeInfo = document.getElementById('molecule-info');
+            const validateButton = document.getElementById('validate-button');
+            const finalCodeInput = document.getElementById('final-code');
+
+            let globalTimeLeft = 300; // 5 minutes
+            let currentMoleculeIndex = 0;
+
+            // Chronomètre global
+            const globalTimer = setInterval(() => {
+                globalTimeLeft--;
+                const minutes = Math.floor(globalTimeLeft / 60);
+                const seconds = globalTimeLeft % 60;
+                globalTimerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+                if (globalTimeLeft <= 0) {
+                    clearInterval(globalTimer);
+                    window.location.href = "{{ path('resultat', { success: false }) }}";
+                }
+            }, 1000);
+
+            // Affichage des molécules
+            function showNextMolecule() {
+                if (currentMoleculeIndex < molecules.length) {
+                    const molecule = molecules[currentMoleculeIndex];
+                    moleculeFormula.textContent = molecule.formuleChimique || molecule.formule;
+                    if (molecule.image) {
+                        moleculeImage.src = `/images/molecules/${molecule.image}`;
+                        moleculeImage.style.display = 'block';
+                    } else {
+                        moleculeImage.style.display = 'none';
+                    }
+                    moleculeInfo.textContent = molecule.information || '';
+                    currentMoleculeIndex++;
+                } else {
+                    clearInterval(moleculeTimer);
+                    moleculeContainer.innerHTML = '<h3>Toutes les molécules ont été affichées</h3>';
+                }
+            }
+
+            const moleculeTimer = setInterval(showNextMolecule, 5000);
+            showNextMolecule(); // Afficher la première molécule immédiatement
+
+            // Validation du mot secret
+            validateButton.addEventListener('click', () => {
+                const finalCode = finalCodeInput.value.trim().toUpperCase();
+
+                fetch('{{ path('validate_answer') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token('validate_answer') }}'
+                    },
+                    body: JSON.stringify({ code: finalCode })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.redirectUrl) {
+                            window.location.href = data.redirectUrl;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur:', error);
+                    });
+            });
+        });
+    </script>
 {% endblock %}

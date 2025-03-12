@@ -6,40 +6,27 @@ use App\Repository\PartieRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PartieRepository::class)]
+#[ORM\Table(name: 'partie')]
 class Partie
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
-
-    #[ORM\Column]
-    private ?int $idPartie = null;
 
     #[ORM\Column(length: 50)]
     private ?string $etat = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     private ?int $score = null;
 
-    #[ORM\ManyToOne(inversedBy: 'parties')]
-    private ?Plante $idPlante = null;
+    #[ORM\ManyToOne(targetEntity: Plante::class, inversedBy: 'parties')]
+    #[ORM\JoinColumn(referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    private ?Plante $plante = null;
 
     public function getId(): ?int
     {
-        return $this->id;
-    }
-
-    public function getIdPartie(): ?int
-    {
         return $this->idPartie;
-    }
-
-    public function setIdPartie(int $idPartie): static
-    {
-        $this->idPartie = $idPartie;
-
-        return $this;
     }
 
     public function getEtat(): ?string
@@ -47,10 +34,9 @@ class Partie
         return $this->etat;
     }
 
-    public function setEtat(string $etat): static
+    public function setEtat(string $etat): self
     {
         $this->etat = $etat;
-
         return $this;
     }
 
@@ -59,22 +45,20 @@ class Partie
         return $this->score;
     }
 
-    public function setScore(int $score): static
+    public function setScore(int $score): self
     {
         $this->score = $score;
-
         return $this;
     }
 
-    public function getIdPlante(): ?Plante
+    public function getPlante(): ?Plante
     {
-        return $this->idPlante;
+        return $this->plante;
     }
 
-    public function setIdPlante(?Plante $idPlante): static
+    public function setPlante(?Plante $plante): self
     {
-        $this->idPlante = $idPlante;
-
+        $this->plante = $plante;
         return $this;
     }
 }

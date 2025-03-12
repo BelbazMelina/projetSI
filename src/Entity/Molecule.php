@@ -7,18 +7,16 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MoleculeRepository::class)]
+#[ORM\Table(name: 'molecule')]
 class Molecule
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
-    #[ORM\Column]
-    private ?int $idMolecule = null;
+    #[ORM\Column( type: 'integer')]
+    private ?int $id= null;
 
     #[ORM\Column(length: 50)]
-    private ?string $formule_chimique = null;
+    private ?string $formuleChimique = null;
 
     #[ORM\Column(length: 200)]
     private ?string $image = null;
@@ -26,35 +24,28 @@ class Molecule
     #[ORM\Column(type: Types::TEXT)]
     private ?string $information = null;
 
-    #[ORM\ManyToOne(inversedBy: 'molecules')]
-    private ?Plante $idPlante = null;
+    #[ORM\ManyToOne(targetEntity: Plante::class, inversedBy: 'molecules')]
+    #[ORM\JoinColumn(referencedColumnName: 'id', nullable: false)]
+    private ?Plante $plante = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
-
-    public function getIdMolecule(): ?int
+    public function setId(?int $id): ?self
     {
-        return $this->idMolecule;
-    }
-
-    public function setIdMolecule(int $idMolecule): static
-    {
-        $this->idMolecule = $idMolecule;
-
+        $this->id=$id;
         return $this;
     }
 
     public function getFormuleChimique(): ?string
     {
-        return $this->formule_chimique;
+        return $this->formuleChimique;
     }
 
-    public function setFormuleChimique(string $formule_chimique): static
+    public function setFormuleChimique(string $formuleChimique): self
     {
-        $this->formule_chimique = $formule_chimique;
-
+        $this->formuleChimique = $formuleChimique;
         return $this;
     }
 
@@ -63,10 +54,9 @@ class Molecule
         return $this->image;
     }
 
-    public function setImage(string $image): static
+    public function setImage(string $image): self
     {
         $this->image = $image;
-
         return $this;
     }
 
@@ -75,22 +65,20 @@ class Molecule
         return $this->information;
     }
 
-    public function setInformation(string $information): static
+    public function setInformation(string $information): self
     {
         $this->information = $information;
-
         return $this;
     }
 
-    public function getIdPlante(): ?Plante
+    public function getPlante(): ?Plante
     {
-        return $this->idPlante;
+        return $this->plante;
     }
 
-    public function setIdPlante(?Plante $idPlante): static
+    public function setPlante(?Plante $plante): self
     {
-        $this->idPlante = $idPlante;
-
+        $this->plante = $plante;
         return $this;
     }
 }

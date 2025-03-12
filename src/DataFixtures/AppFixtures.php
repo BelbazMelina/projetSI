@@ -12,58 +12,58 @@ class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        // Création des plantes
+
         $plante1 = new Plante();
-        $plante1->setIdPlante(1);
+        $plante1->setId(1);
         $plante1->setNom('Camomille');
         $plante1->setImage('Camomille.png');
         $manager->persist($plante1);
 
         $plante2 = new Plante();
-        $plante2->setIdPlante(2);
+        $plante2->setId(2);
         $plante2->setNom('Caféier');
         $plante2->setImage('Caféier.png');
         $manager->persist($plante2);
 
         $plante3 = new Plante();
-        $plante3->setIdPlante(3);
+        $plante3->setId(3);
         $plante3->setNom('Romarin');
         $plante3->setImage('Romarin.png');
         $manager->persist($plante3);
 
         $plante4 = new Plante();
-        $plante4->setIdPlante(4);
+        $plante4->setId(4);
         $plante4->setNom('Lavande');
         $plante4->setImage('Lavande.png');
         $manager->persist($plante4);
 
         // Création des cadenas
         $cadenas1 = new Cadenas();
-        $cadenas1->setIdCadenas(1);
+        $cadenas1->setId(1);
         $cadenas1->setMotSecret('dpdml');
         $cadenas1->setImage('cadenas1.png');
-        $cadenas1->setIdPlante($plante1);
+        $cadenas1->setPlante($plante1);
         $manager->persist($cadenas1);
 
         $cadenas2 = new Cadenas();
-        $cadenas2->setIdCadenas(2);
+        $cadenas2->setId(2);
         $cadenas2->setMotSecret('XaRXT');
         $cadenas2->setImage('cadenas2.png');
-        $cadenas2->setIdPlante($plante2);
+        $cadenas2->setPlante($plante2);
         $manager->persist($cadenas2);
 
         $cadenas3 = new Cadenas();
-        $cadenas3->setIdCadenas(3);
+        $cadenas3->setId(3);
         $cadenas3->setMotSecret('jRAtO');
         $cadenas3->setImage('cadenas3.png');
-        $cadenas3->setIdPlante($plante3);
+        $cadenas3->setPlante($plante3);
         $manager->persist($cadenas3);
 
         $cadenas4 = new Cadenas();
-        $cadenas4->setIdCadenas(4);
+        $cadenas4->setId(4);
         $cadenas4->setMotSecret('chacZ');
         $cadenas4->setImage('cadenas4.png');
-        $cadenas4->setIdPlante($plante4);
+        $cadenas4->setPlante($plante4);
         $manager->persist($cadenas4);
 
         // Création des molécules pour chaque plante
@@ -97,11 +97,11 @@ class AppFixtures extends Fixture
     private function createMolecule(ObjectManager $manager, int $id, string $formule, string $image, string $information, Plante $plante): void
     {
         $molecule = new Molecule();
-        $molecule->setIdMolecule($id);
+        $molecule->setId($id);
         $molecule->setFormuleChimique($formule);
         $molecule->setImage($image);
         $molecule->setInformation($information);
-        $molecule->setIdPlante($plante);
+        $molecule->setPlante($plante);
         $manager->persist($molecule);
     }
 }

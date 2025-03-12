@@ -15,8 +15,7 @@ class Plante
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?int $idPlante = null;
+
 
     #[ORM\Column(length: 50)]
     private ?string $nom = null;
@@ -54,14 +53,9 @@ class Plante
         return $this->id;
     }
 
-    public function getIdPlante(): ?int
+    public function setId(int $id): static
     {
-        return $this->idPlante;
-    }
-
-    public function setIdPlante(int $idPlante): static
-    {
-        $this->idPlante = $idPlante;
+        $this->id = $id;
 
         return $this;
     }

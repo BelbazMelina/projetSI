@@ -42,10 +42,14 @@ class PlanteRepository extends ServiceEntityRepository
     //    }
     public function findRandomPlante(): ?Plante
     {
-        return $this->createQueryBuilder('p')
-            ->orderBy('RANDOM()')
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT id FROM plante ORDER BY RANDOM() LIMIT 1';
+        $result = $conn->executeQuery($sql)->fetchAssociative();
+
+        if (!$result) {
+            return null;
+        }
+
+        return $this->find($result['id']);
     }
 }

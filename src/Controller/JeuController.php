@@ -21,91 +21,79 @@ class JeuController extends AbstractController
     {
         return $this->render('jeu/accueil.html.twig');
     }
-    public function findRandomPlante(): ?Plante
-    {
-        $conn = $this->getEntityManager()->getConnection();
 
-        // Cette requête fonctionne avec PostgreSQL et MySQL
-        $sql = 'SELECT id_plante FROM plante ORDER BY RANDOM() LIMIT 1';
-
-        try {
-            $result = $conn->executeQuery($sql)->fetchAssociative();
-
-            if ($result === false) {
-                return null;
-            }
-
-            return $this->find($result['id_plante']);
-        } catch (\Exception $e) {
-
-            $sql = 'SELECT id_plante FROM plante';
-            $result = $conn->executeQuery($sql)->fetchAllAssociative();
-
-            if (empty($result)) {
-                return null;
-            }
-
-            $randomIndex = array_rand($result);
-            return $this->find($result[$randomIndex]['id_plante']);
-        }
-    }
     #[Route('/jeu', name: 'commencer_jeu')]
     public function startGame(
         PlanteRepository $planteRepository,
         MoleculeRepository $moleculeRepository,
         SessionInterface $session
     ): Response {
-        // Sélectionner une plante aléatoire
-        $plantes = $planteRepository->findAll();
-        $plante = $plantes[array_rand($plantes)];
+        $plante = $planteRepository->findRandomPlante();
 
-        // Récupérer les molécules associées à cette plante
-        $molecules = $moleculeRepository->findBy(['idPlante' => $plante]);
+        if (!$plante) {
 
-        // Stocker l'ID de la plante en session
-        $session->set('plante_id', $plante->getIdPlante());
+            $this->addFlash('error', 'Aucune plante n\'est disponible pour jouer.');
+
+        }
+
+
+        $molecules = $moleculeRepository->findBy(['plante' => $plante]);
+
+        $session->set('plante_id', $plante->getId());
+        $session->set('start_time', time());
         $session->set('score', 0);
 
-        // Passer les données au template
         return $this->render('jeu/decryptage.html.twig', [
             'plante' => $plante,
             'molecules' => $molecules,
         ]);
     }
+
     #[Route('/validate-answer', name: 'validate_answer', methods: ['POST'])]
     public function validateAnswer(Request $request, SessionInterface $session, CadenasRepository $cadenasRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $planteId = $data['planteId'];
-        $userCode = $data['code'];
+        $planteId = $session->get('plante_id');
+        $startTime = $session->get('start_time');
+        $currentTime = time();
+        $timeElapsed = $currentTime - $startTime;
 
-        // Récupérer le code secret de la plante
-        $cadenas = $cadenasRepository->findOneBy(['idPlante' => $planteId]);
-        $secretCode = $cadenas->getMotSecret();
-
-        // Vérifier si le code est correct
-        if ($userCode === $secretCode) {
-            $session->set('score', 100); // Score maximum
+        if ($timeElapsed >= 300) {
             return new JsonResponse([
-                'status' => 'success',
-                'redirectUrl' => $this->generateUrl('resultat', ['id' => $planteId, 'success' => true])
+                'status' => 'timeout',
+                'redirectUrl' => $this->generateUrl('resultat', ['success' => false])
             ]);
         }
 
-        return new JsonResponse(['status' => 'continue']);
+        $cadenas = $cadenasRepository->findOneBy(['idPlante' => $planteId]);
+        $motSecret = $cadenas->getMotSecret();
+
+        if ($data['code'] === $motSecret) {
+            // Calculer le score en fonction du temps restant
+            $score = max(0, 100 - floor($timeElapsed / 3));
+            $session->set('score', $score);
+
+            return new JsonResponse([
+                'status' => 'success',
+                'redirectUrl' => $this->generateUrl('resultat', ['success' => true])
+            ]);
+        }
+
+        return new JsonResponse([
+            'status' => 'failure',
+            'redirectUrl' => $this->generateUrl('resultat', ['success' => false])
+        ]);
     }
 
-    #[Route('/resultat/{id}', name: 'resultat')]
-    public function showResult(int $id, Request $request, PlanteRepository $planteRepository, SessionInterface $session): Response
+    #[Route('/resultat', name: 'resultat')]
+    public function showResult(Request $request, SessionInterface $session): Response
     {
         $isSuccess = $request->query->get('success', false);
         $score = $session->get('score', 0);
-        $plante = $planteRepository->find($id);
 
         return $this->render('jeu/resultat.html.twig', [
             'isSuccess' => $isSuccess,
             'score' => $score,
-            'plante' => $plante,
         ]);
     }
 }
