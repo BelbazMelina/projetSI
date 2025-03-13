@@ -3,11 +3,32 @@
 {% block title %}Résultat{% endblock %}
 
 {% block body %}
-    <div class="container text-center">
-        <h1>{{ isSuccess ? 'Bien joué !' : 'Game Over !' }}</h1>
-        <p>Votre score : {{ score }}</p>
+    <div class="result-container">
+        <h1>{{ message }}</h1>
+
         {% if isSuccess %}
-            <a href="{{ path('commencer_jeu') }}" class="btn btn-primary">Rejouer</a>
+            <div class="success-result">
+                <img src="{{ asset('images/' ~ plante.image) }}" alt="{{ plante.nom }}" />
+                <p>Félicitations ! Vous avez découvert : {{ plante.nom }}</p>
+            </div>
+        {% else %}
+            <div class="failure-result">
+                {% if isTimeout %}
+                    <img src="{{ asset('images/game-over.png') }}" alt="Game Over" />
+                {% else %}
+                    <img src="{{ asset('images/plante-sauvage.png') }}" alt="Plante Sauvage" />
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="score">
+            <h2>Score : {{ score }}</h2>
+        </div>
+
+        {% if not isTimeout %}
+            <div class="replay-button">
+                <a href="{{ path('commencer_jeu') }}" class="btn btn-primary">Rejouer</a>
+            </div>
         {% endif %}
     </div>
 {% endblock %}

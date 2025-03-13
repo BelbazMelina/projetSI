@@ -26,7 +26,7 @@ class Partie
 
     public function getId(): ?int
     {
-        return $this->idPartie;
+        return $this->id;
     }
 
     public function getEtat(): ?string
