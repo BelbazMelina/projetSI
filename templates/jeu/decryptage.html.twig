@@ -6,28 +6,42 @@
     <div class="container">
         <h1 class="text-center my-4">Décryptage des formules</h1>
 
-        <div id="game-container" class="text-center">
+        <div id="game-container">
             <!-- Chronomètre global -->
-            <div class="timer mb-4">
+            <div class="timer mb-4 text-center">
                 Temps restant : <span id="global-timer">5:00</span>
             </div>
 
-            <!-- Formule chimique -->
-            <div id="molecule-container" class="text-center">
-                <div class="card mx-auto" style="max-width: 600px;">
-                    <div class="card-body">
-                        <h2 id="molecule-formula" class="card-title"></h2>
-                        <img id="molecule-image" src="" alt="Image de la molécule" class="img-fluid my-3" style="max-width: 300px;">
-                        <p id="molecule-info" class="card-text"></p>
+            <!-- Toutes les formules chimiques -->
+            <div class="row">
+                {% for molecule in molecules %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <h3 class="card-title">Formule {{ loop.index }}</h3>
+                                <div class="formula-box mb-3">
+                                    <h4>{{ molecule.formuleChimique }}</h4>
+                                </div>
+                                {% if molecule.image %}
+                                    <img src="{{ asset('images/molecules/' ~ molecule.image) }}"
+                                         alt="Molécule {{ molecule.formuleChimique }}"
+                                         class="img-fluid mb-3"
+                                         style="max-height: 200px; width: auto;">
+                                {% endif %}
+                                <p class="card-text">{{ molecule.information }}</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                {% endfor %}
             </div>
 
             <!-- Zone de réponse -->
             <div id="answer-zone" class="text-center mt-4">
                 <div class="form-group">
-                    <label for="final-code" class="mb-2">Entrez le mot secret :</label>
-                    <input type="text" id="final-code" class="form-control mx-auto" style="max-width: 200px;" maxlength="100">
+                    <label for="final-code" class="mb-2">
+                        <strong>Entrez le mot secret :</strong>
+                    </label>
+                    <input type="text" id="final-code" class="form-control mx-auto" style="max-width: 200px;">
                 </div>
                 <button id="validate-button" class="btn btn-primary mt-3">Valider</button>
             </div>
@@ -35,77 +49,109 @@
     </div>
 {% endblock %}
 
+{% block stylesheets %}
+    <style>
+        .card {
+            transition: transform 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .card:hover {
+            transform: scale(1.02);
+        }
+        .formula-box {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .formula-box h4 {
+            margin: 0;
+            color: #007bff;
+            font-weight: bold;
+        }
+        #global-timer {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #dc3545;
+        }
+    </style>
+{% endblock %}
+
 {% block javascripts %}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const molecules = {{ molecules|json_encode|raw }};
             const globalTimerElement = document.getElementById('global-timer');
-            const moleculeContainer = document.getElementById('molecule-container');
-            const moleculeFormula = document.getElementById('molecule-formula');
-            const moleculeImage = document.getElementById('molecule-image');
-            const moleculeInfo = document.getElementById('molecule-info');
             const validateButton = document.getElementById('validate-button');
             const finalCodeInput = document.getElementById('final-code');
 
-            let globalTimeLeft = 300; // 5 minutes
-            let currentMoleculeIndex = 0;
+            // Utiliser le temps restant passé par le contrôleur
+            let timeRemaining = {{ timeRemaining }}; // Ce temps est déjà calculé dans le contrôleur
 
             // Chronomètre global
             const globalTimer = setInterval(() => {
-                globalTimeLeft--;
-                const minutes = Math.floor(globalTimeLeft / 60);
-                const seconds = globalTimeLeft % 60;
-                globalTimerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-
-                if (globalTimeLeft <= 0) {
+                if (timeRemaining <= 0) {
                     clearInterval(globalTimer);
-                    window.location.href = "{{ path('resultat', { success: false }) }}";
+                    window.location.href = "{{ path('resultat', {
+                        'success': false,
+                        'timeout': true,
+                        'parties_jouees': parties_jouees
+                    }) }}";
+                    return;
                 }
+
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+                globalTimerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                timeRemaining--;
             }, 1000);
 
-            // Affichage des molécules
-            function showNextMolecule() {
-                if (currentMoleculeIndex < molecules.length) {
-                    const molecule = molecules[currentMoleculeIndex];
-                    moleculeFormula.textContent = molecule.formuleChimique || molecule.formule;
-                    if (molecule.image) {
-                        moleculeImage.src = `/images/molecules/${molecule.image}`;
-                        moleculeImage.style.display = 'block';
-                    } else {
-                        moleculeImage.style.display = 'none';
-                    }
-                    moleculeInfo.textContent = molecule.information || '';
-                    currentMoleculeIndex++;
-                } else {
-                    clearInterval(moleculeTimer);
-                    moleculeContainer.innerHTML = '<h3>Toutes les molécules ont été affichées</h3>';
-                }
-            }
-
-            const moleculeTimer = setInterval(showNextMolecule, 5000);
-            showNextMolecule(); // Afficher la première molécule immédiatement
-
             // Validation du mot secret
-            validateButton.addEventListener('click', () => {
+            validateButton.addEventListener('click', function() {
                 const finalCode = finalCodeInput.value.trim().toUpperCase();
+
+                if (finalCode === '') {
+                    alert('Veuillez entrer un code');
+                    return;
+                }
+
+                // Désactiver le bouton pendant la validation
+                validateButton.disabled = true;
 
                 fetch('{{ path('validate_answer') }}', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token('validate_answer') }}'
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ code: finalCode })
+                    body: JSON.stringify({
+                        code: finalCode,
+                        timeRemaining: timeRemaining
+                    })
                 })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Erreur réseau');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         if (data.redirectUrl) {
+                            clearInterval(globalTimer);
                             window.location.href = data.redirectUrl;
                         }
                     })
                     .catch(error => {
                         console.error('Erreur:', error);
+                        validateButton.disabled = false;
+                        alert('Une erreur est survenue lors de la validation');
                     });
+            });
+
+            // Permettre la validation avec la touche Entrée
+            finalCodeInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    validateButton.click();
+                }
             });
         });
     </script>

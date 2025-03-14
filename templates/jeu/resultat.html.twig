@@ -1,7 +1,3 @@
-{% extends 'base.html.twig' %}
-
-{% block title %}Résultat{% endblock %}
-
 {% block body %}
     <div class="result-container">
         <h1>{{ message }}</h1>
@@ -15,6 +11,7 @@
             <div class="failure-result">
                 {% if isTimeout %}
                     <img src="{{ asset('images/game-over.png') }}" alt="Game Over" />
+                    <p>Temps écoulé ! Vous avez joué {{ parties_jouees|default(0) }} parties en 5 minutes.</p>
                 {% else %}
                     <img src="{{ asset('images/plante-sauvage.png') }}" alt="Plante Sauvage" />
                 {% endif %}
@@ -23,11 +20,17 @@
 
         <div class="score">
             <h2>Score : {{ score }}</h2>
+            {% if isTimeout %}
+                <p>Nombre total de parties jouées : {{ parties_jouees }}</p>
+            {% endif %}
         </div>
-
         {% if not isTimeout %}
             <div class="replay-button">
                 <a href="{{ path('commencer_jeu') }}" class="btn btn-primary">Rejouer</a>
+            </div>
+        {% else %}
+            <div class="new-game-button">
+                <a href="{{ path('accueil') }}" class="btn btn-primary">Nouvelle partie</a>
             </div>
         {% endif %}
     </div>

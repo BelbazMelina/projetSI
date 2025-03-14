@@ -23,21 +23,53 @@ class JeuController extends AbstractController
         return $this->render('jeu/accueil.html.twig');
     }
 
+    // Dans JeuController.php
+
+    // Dans JeuController.php
+
     #[Route('/jeu', name: 'commencer_jeu')]
     public function startGame(
         PlanteRepository $planteRepository,
         MoleculeRepository $moleculeRepository,
         EntityManagerInterface $entityManager,
-        SessionInterface $session
+        SessionInterface $session,
+        Request $request
     ): Response {
-        $plante = $planteRepository->findRandomPlante();
+        // Initialiser le chronomètre UNIQUEMENT si on vient de la page d'accueil
+        // ou si le chronomètre n'existe pas encore
+        if ($request->query->get('from') === 'accueil' || !$session->has('global_start_time')) {
+            $session->set('global_start_time', time());
+            $session->set('parties_jouees', 0);
+        }
 
+        // Calculer le temps restant depuis le début du jeu
+        $globalStartTime = $session->get('global_start_time');
+        $timeElapsed = time() - $globalStartTime;
+        $timeRemaining = 300 - $timeElapsed; // 5 minutes
+
+        // Si le temps est écoulé
+        if ($timeRemaining <= 0) {
+            return $this->redirectToRoute('resultat', [
+                'success' => false,
+                'timeout' => true,
+                'parties_jouees' => $session->get('parties_jouees', 0)
+            ]);
+        }
+
+        // Incrémenter le compteur de parties jouées si ce n'est pas une nouvelle partie
+        if ($request->query->get('from') !== 'accueil') {
+            $session->set('parties_jouees', $session->get('parties_jouees', 0) + 1);
+        }
+
+        // Sélectionner une plante aléatoire
+        $plante = $planteRepository->findRandomPlante();
         if (!$plante) {
             $this->addFlash('error', 'Aucune plante n\'est disponible pour jouer.');
             return $this->redirectToRoute('accueil');
         }
 
-        $molecules = $moleculeRepository->findBy(['id' => $plante->getId()]);
+        // Récupérer les molécules
+        $molecules = $moleculeRepository->findBy(['plante' => $plante->getId()]);
 
         // Créer une nouvelle partie
         $partie = new Partie();
@@ -48,17 +80,17 @@ class JeuController extends AbstractController
         $entityManager->persist($partie);
         $entityManager->flush();
 
+        // Mettre à jour la session
         $session->set('plante_id', $plante->getId());
         $session->set('partie_id', $partie->getId());
-        $session->set('start_time', time());
 
         return $this->render('jeu/decryptage.html.twig', [
             'plante' => $plante,
             'molecules' => $molecules,
-            'timeLimit' => 300, // 5 minutes en secondes
+            'timeRemaining' => $timeRemaining,
+            'parties_jouees' => $session->get('parties_jouees', 0)
         ]);
     }
-
     #[Route('/validate-answer', name: 'validate_answer', methods: ['POST'])]
     public function validateAnswer(
         Request $request,
@@ -68,17 +100,21 @@ class JeuController extends AbstractController
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
         $planteId = $session->get('plante_id');
-        $startTime = $session->get('start_time');
+
+        // Utiliser global_start_time au lieu de start_time
+        $globalStartTime = $session->get('global_start_time');
         $currentTime = time();
-        $timeElapsed = $currentTime - $startTime;
+        $timeElapsed = $currentTime - $globalStartTime;
+        $timeRemaining = 300 - $timeElapsed;
 
         // Vérifier si le temps est écoulé (5 minutes = 300 secondes)
-        if ($timeElapsed >= 300) {
+        if ($timeRemaining <= 0) {
             return new JsonResponse([
                 'status' => 'timeout',
                 'redirectUrl' => $this->generateUrl('resultat', [
                     'success' => false,
-                    'timeout' => true
+                    'timeout' => true,
+                    'parties_jouees' => $session->get('parties_jouees', 0)
                 ])
             ]);
         }
@@ -92,11 +128,16 @@ class JeuController extends AbstractController
             $score = max(0, 100 - floor($timeElapsed / 3));
             $session->set('score', $score);
 
+            // Incrémenter le compteur de parties
+            $partiesJouees = $session->get('parties_jouees', 0);
+            $session->set('parties_jouees', $partiesJouees + 1);
+
             return new JsonResponse([
                 'status' => 'success',
                 'redirectUrl' => $this->generateUrl('resultat', [
                     'success' => true,
-                    'timeout' => false
+                    'timeout' => false,
+                    'parties_jouees' => $session->get('parties_jouees')
                 ])
             ]);
         }
@@ -106,7 +147,8 @@ class JeuController extends AbstractController
             'status' => 'failure',
             'redirectUrl' => $this->generateUrl('resultat', [
                 'success' => false,
-                'timeout' => false
+                'timeout' => false,
+                'parties_jouees' => $session->get('parties_jouees')
             ])
         ]);
     }
@@ -119,18 +161,18 @@ class JeuController extends AbstractController
     ): Response {
         $isSuccess = $request->query->get('success', false);
         $isTimeout = $request->query->get('timeout', false);
+        $score = $request->query->get('score', 0);
         $partieId = $session->get('partie_id');
 
         $partie = $entityManager->getRepository(Partie::class)->find($partieId);
         $plante = $partie ? $partie->getPlante() : null;
-        $score = $partie ? $partie->getScore() : 0;
 
         return $this->render('jeu/resultat.html.twig', [
             'isSuccess' => $isSuccess,
             'isTimeout' => $isTimeout,
             'score' => $score,
             'plante' => $plante,
-            'showReplayButton' => !$isTimeout,
+            'parties_jouees' => $session->get('parties_jouees', 0),
             'message' => $this->getResultMessage($isSuccess, $isTimeout)
         ]);
     }
