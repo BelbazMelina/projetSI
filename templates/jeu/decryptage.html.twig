@@ -11,29 +11,31 @@
             <div class="timer mb-4 text-center">
                 Temps restant : <span id="global-timer">5:00</span>
             </div>
-
-            <!-- Toutes les formules chimiques -->
-            <div class="row">
+            <!-- Affichage des formules chimiques une par une -->
+            <div id="formules-container">
                 {% for molecule in molecules %}
-                    <div class="col-md-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body text-center">
-                                <h3 class="card-title">Formule {{ loop.index }}</h3>
-                                <div class="formula-box mb-3">
-                                    <h4>{{ molecule.formuleChimique }}</h4>
-                                </div>
-                                {% if molecule.image %}
-                                    <img src="{{ asset('images/molecules/' ~ molecule.image) }}"
-                                         alt="Molécule {{ molecule.formuleChimique }}"
-                                         class="img-fluid mb-3"
-                                         style="max-height: 200px; width: auto;">
-                                {% endif %}
-                                <p class="card-text">{{ molecule.information }}</p>
+                <div class="formule" data-index="{{ loop.index0 }}" style="display: none;">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <h3 class="card-title">Formule {{ loop.index }}</h3>
+                            <div class="formula-box mb-3">
+                                <h4>{{ molecule.formuleChimique }}</h4>
                             </div>
+                            {% if molecule.image %}
+                                <img src="{{ asset('images/molecules/' ~ molecule.image) }}"
+                                     alt="Molécule {{ molecule.formuleChimique }}"
+                                     class="img-fluid mb-3"
+                                     style="max-height: 200px; width: auto;">
+                            {% endif %}
+
+                            <p class="card-text">{{ molecule.information }}</p>
+
                         </div>
                     </div>
-                {% endfor %}
+                </div>
+                {%  endfor %}
             </div>
+
 
             <!-- Zone de réponse -->
             <div id="answer-zone" class="text-center mt-4">
@@ -47,6 +49,7 @@
             </div>
         </div>
     </div>
+
 {% endblock %}
 
 {% block stylesheets %}
@@ -74,6 +77,12 @@
             font-weight: bold;
             color: #dc3545;
         }
+        .formula-timer {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #28a745;
+            margin-top: 10px;
+        }
     </style>
 {% endblock %}
 
@@ -83,13 +92,28 @@
             const globalTimerElement = document.getElementById('global-timer');
             const validateButton = document.getElementById('validate-button');
             const finalCodeInput = document.getElementById('final-code');
+            const formules = document.querySelectorAll('.formule');
 
-            // Utiliser le temps restant passé par le contrôleur
-            let timeRemaining = {{ timeRemaining }}; // Ce temps est déjà calculé dans le contrôleur
+            let globalTimeRemaining = {{ timeRemaining }};
+            let formulaTimeInterval = 5; // Chaque formule apparaît toutes les 5 secondes
+            let currentFormulaIndex = 0;
+
+            function showNextFormula() {
+                if (currentFormulaIndex < formules.length) {
+                    formules[currentFormulaIndex].style.display = 'block';
+                    currentFormulaIndex++;
+                    if (currentFormulaIndex < formules.length) {
+                        setTimeout(showNextFormula, formulaTimeInterval * 1000); // Afficher la suivante après 15s
+                    }
+                }
+            }
+
+            // Lancer l'affichage de la première formule
+            showNextFormula();
 
             // Chronomètre global
             const globalTimer = setInterval(() => {
-                if (timeRemaining <= 0) {
+                if (globalTimeRemaining <= 0) {
                     clearInterval(globalTimer);
                     window.location.href = "{{ path('resultat', {
                         'success': false,
@@ -99,10 +123,10 @@
                     return;
                 }
 
-                const minutes = Math.floor(timeRemaining / 60);
-                const seconds = timeRemaining % 60;
+                const minutes = Math.floor(globalTimeRemaining / 60);
+                const seconds = globalTimeRemaining % 60;
                 globalTimerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-                timeRemaining--;
+                globalTimeRemaining--;
             }, 1000);
 
             // Validation du mot secret
@@ -114,7 +138,6 @@
                     return;
                 }
 
-                // Désactiver le bouton pendant la validation
                 validateButton.disabled = true;
 
                 fetch('{{ path('validate_answer') }}', {
@@ -123,21 +146,20 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        code: finalCode,
-                        timeRemaining: timeRemaining
+                        code: finalCode
                     })
                 })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Erreur réseau');
-                        }
-                        return response.json();
-                    })
+                    .then(response => response.json())
                     .then(data => {
-                        if (data.redirectUrl) {
-                            clearInterval(globalTimer);
-                            window.location.href = data.redirectUrl;
+                        if (data.correct) {
+                            score++; // Incrémenter le score si la réponse est correcte
+                            alert('Bonne réponse ! Votre score est maintenant : ' + score);
+                        } else {
+                            alert('Mauvaise réponse');
                         }
+                        // if (data.redirectUrl) {
+                        //     clearInterval(globalTimer);
+                        //     window.location.href = data.redirectUrl;}
                     })
                     .catch(error => {
                         console.error('Erreur:', error);
@@ -154,5 +176,6 @@
                 }
             });
         });
+
     </script>
 {% endblock %}

@@ -15,6 +15,40 @@ class MoleculeRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Molecule::class);
     }
+    public function findRandomMolecule(int $planteId): ?Molecule
+    {
+        $count = $this->createQueryBuilder('m')
+            ->select('COUNT(m.id)')
+            ->where('m.plante = :planteId')
+            ->setParameter('planteId', $planteId)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        if ($count == 0) {
+            return null;
+        }
+
+        $randomOffset = rand(0, $count - 1);
+
+        return $this->createQueryBuilder('m')
+            ->where('m.plante = :planteId')
+            ->setParameter('planteId', $planteId)
+            ->setMaxResults(1)
+            ->setFirstResult($randomOffset)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+//    public function findRandomMolecule(int $planteId): ?Molecule
+//    {
+//        return $this->createQueryBuilder('m')
+//            ->where('m.plante = :planteId')
+//            ->setParameter('planteId', $planteId)
+//            ->orderBy('RANDOM()')
+//            ->setMaxResults(1)
+//            ->getQuery()
+//            ->getOneOrNullResult();
+//    }
 
     //    /**
     //     * @return Molecule[] Returns an array of Molecule objects

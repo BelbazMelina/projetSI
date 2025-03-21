@@ -81,4 +81,17 @@ class Molecule
         $this->plante = $plante;
         return $this;
     }
+    public function getTotalAtoms(): int
+    {
+        $formula = $this->formuleChimique;
+        $total = 0;
+
+        // Exemple de calcul simple (à adapter selon vos besoins)
+        preg_match_all('/\d+/', $formula, $matches);
+        foreach ($matches[0] as $number) {
+            $total += (int)$number;
+        }
+
+        return $total;
+    }
 }

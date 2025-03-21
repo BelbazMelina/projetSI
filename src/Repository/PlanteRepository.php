@@ -15,6 +15,37 @@ class PlanteRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Plante::class);
     }
+    public function findRandomPlante(array $excludedIds): ?Plante
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)');
+
+        if (!empty($excludedIds)) {
+            $qb->where('p.id NOT IN (:excludedIds)')
+                ->setParameter('excludedIds', $excludedIds);
+        }
+
+        $count = $qb->getQuery()->getSingleScalarResult();
+
+        if ($count == 0) {
+            return null;
+        }
+
+        $randomOffset = rand(0, $count - 1);
+
+        $query = $this->createQueryBuilder('p');
+
+        if (!empty($excludedIds)) {
+            $query->where('p.id NOT IN (:excludedIds)')
+                ->setParameter('excludedIds', $excludedIds);
+        }
+
+        return $query->setMaxResults(1)
+            ->setFirstResult($randomOffset)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
 
     //    /**
     //     * @return Plante[] Returns an array of Plante objects
@@ -40,16 +71,4 @@ class PlanteRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
-    public function findRandomPlante(): ?Plante
-    {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = 'SELECT id FROM plante ORDER BY RANDOM() LIMIT 1';
-        $result = $conn->executeQuery($sql)->fetchAssociative();
-
-        if (!$result) {
-            return null;
-        }
-
-        return $this->find($result['id']);
-    }
 }

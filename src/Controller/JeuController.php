@@ -40,6 +40,7 @@ class JeuController extends AbstractController
         if ($request->query->get('from') === 'accueil' || !$session->has('global_start_time')) {
             $session->set('global_start_time', time());
             $session->set('parties_jouees', 0);
+            $session->set('formules_trouvees', []); // Initialiser la liste des formules trouvées
         }
 
         // Calculer le temps restant depuis le début du jeu
@@ -60,17 +61,27 @@ class JeuController extends AbstractController
         if ($request->query->get('from') !== 'accueil') {
             $session->set('parties_jouees', $session->get('parties_jouees', 0) + 1);
         }
+        // Récupérer les IDs des plantes déjà jouées
+        $plantesJouees = $session->get('plantes_jouees', []);
 
         // Sélectionner une plante aléatoire
-        $plante = $planteRepository->findRandomPlante();
+        $plante = $planteRepository->findRandomPlante($plantesJouees);
         if (!$plante) {
             $this->addFlash('error', 'Aucune plante n\'est disponible pour jouer.');
             return $this->redirectToRoute('accueil');
         }
-
-        // Récupérer les molécules
+        // Récupérer l'ID de la plante
+        $planteId = $plante->getId();
+        // Ajouter la plante à la liste des plantes jouées
+        $plantesJouees[] = $plante->getId();
+        $session->set('plantes_jouees', $plantesJouees);
+         // Récupérer les molécules
         $molecules = $moleculeRepository->findBy(['plante' => $plante->getId()]);
-
+//        $molecule = $moleculeRepository->findRandomMolecule($plante->getId());
+//        if (!$molecule) {
+//            $this->addFlash('error', 'Aucune molécule n\'est disponible pour cette plante.');
+//            return $this->redirectToRoute('accueil');
+//        }
         // Créer une nouvelle partie
         $partie = new Partie();
         $partie->setPlante($plante);
@@ -83,6 +94,7 @@ class JeuController extends AbstractController
         // Mettre à jour la session
         $session->set('plante_id', $plante->getId());
         $session->set('partie_id', $partie->getId());
+        $session->set('molecules', $molecules); // Stocker les molécules dans la session
 
         return $this->render('jeu/decryptage.html.twig', [
             'plante' => $plante,
@@ -101,7 +113,7 @@ class JeuController extends AbstractController
         $data = json_decode($request->getContent(), true);
         $planteId = $session->get('plante_id');
 
-        // Utiliser global_start_time au lieu de start_time
+
         $globalStartTime = $session->get('global_start_time');
         $currentTime = time();
         $timeElapsed = $currentTime - $globalStartTime;
