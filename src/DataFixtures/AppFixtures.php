@@ -61,7 +61,7 @@ class AppFixtures extends Fixture
 
         $cadenas4 = new Cadenas();
         $cadenas4->setId(4);
-        $cadenas4->setMotSecret('chacZ');
+        $cadenas4->setMotSecret('chacz');
         $cadenas4->setImage('cadenas4.png');
         $cadenas4->setPlante($plante4);
         $manager->persist($cadenas4);
