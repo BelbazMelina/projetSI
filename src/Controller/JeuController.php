@@ -211,13 +211,11 @@ class JeuController extends AbstractController
         $score = $request->query->get('score', 0);
         $partieId = $session->get('partie_id');
 
-        // Calculer le nombre réel de parties jouées
         $plantesJouees = $session->get('plantes_jouees', []);
         $partiesJouees = count($plantesJouees);
 
-        // Mettre à jour la session
         $session->set('parties_jouees', $partiesJouees);
-
+        $tentativeRejouerApres4 = $partiesJouees >= 4 && $request->query->get('rejouer', false);
         $partie = $entityManager->getRepository(Partie::class)->find($partieId);
         $plante = $partie ? $partie->getPlante() : null;
 
@@ -226,7 +224,8 @@ class JeuController extends AbstractController
             'isTimeout' => $isTimeout,
             'score' => $score,
             'plante' => $plante,
-            'parties_jouees' => $partiesJouees
+            'parties_jouees' => $partiesJouees,
+            'tentativeRejouerApres4' => $tentativeRejouerApres4,
         ]);
     }
 

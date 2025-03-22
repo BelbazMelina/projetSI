@@ -4,109 +4,133 @@
 {% block stylesheets %}
     <style>
         body {
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh; /* Hauteur minimale de 100% de la hauteur de la fenêtre */
+            background-color: #f0f5f0;
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            min-height: 100vh;
             display: flex;
-            align-items: center; /* Centre verticalement */
-            justify-content: center; /* Centre horizontalement */
+            align-items: center;
+            justify-content: center;
         }
 
         .result-container {
             max-width: 800px;
-            width: 90%; /* Utilise 90% de la largeur disponible */
-            margin: 20px;
+            width: 90%;
+            margin: 20px auto;
             text-align: center;
-            padding: 20px;
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
-            color: #0d6efd;
-            font-weight: bold;
-            margin-bottom: 20px;
-            font-size: 1.8rem; /* Taille adaptée aux mobiles */
+            color: #2c5282;
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .success-result, .failure-result {
+            margin: 25px 0;
         }
 
         .success-result img, .failure-result img {
             max-width: 100%;
             height: auto;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            max-height: 30vh; /* Limite la hauteur de l'image */
-            object-fit: contain;
+            max-height: 200px;
+            border-radius: 12px;
+            background: #ffffff;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            display: block;
+            border: 1px solid #e2e8f0;
         }
 
         .success-result p, .failure-result p {
-            font-size: 1.1rem;
-            color: #6c757d;
-            font-weight: 500;
+            color: #4a5568;
+            font-size: 1.2rem;
+            line-height: 1.6;
             margin: 15px 0;
         }
 
         .score {
-            margin: 20px auto;
-            padding: 15px;
-            background-color: #e7f1ff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px auto;
+            border: 1px solid #e2e8f0;
             max-width: 80%;
         }
 
         .score h2 {
-            color: #0d6efd;
-            font-weight: bold;
+            color: #2c5282;
             font-size: 1.5rem;
-            margin: 10px 0;
+            margin: 15px 0;
+            font-weight: 600;
         }
 
         .score p {
-            color: #6c757d;
-            margin: 10px 0;
-        }
-
-        .replay-button, .new-game-button {
-            margin-top: 20px;
+            color: #4a5568;
+            margin: 12px 0;
+            font-size: 1.1rem;
         }
 
         .btn-primary {
-            background-color: #0d6efd;
+            background-color: #3182ce;
             border: none;
-            padding: 12px 25px;
+            padding: 12px 30px;
             font-size: 1.1rem;
-            border-radius: 30px;
-            font-weight: bold;
+            border-radius: 10px;
             color: white;
             text-decoration: none;
             display: inline-block;
-            margin: 10px 0;
+            margin: 10px;
+            transition: all 0.2s ease;
+            font-weight: 500;
         }
 
         .btn-primary:hover {
-            background-color: #0b5ed7;
-            box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+            background-color: #2c5282;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(49, 130, 206, 0.2);
         }
 
-        .replay-button p {
-            font-size: 1.1rem;
-            color: #6c757d;
-            font-weight: 500;
-            margin: 15px 0;
+        .replay-button, .new-game-button {
+            margin-top: 25px;
         }
 
-        /* Ajustements pour les très petits écrans */
-        @media (max-width: 380px) {
+        /* Message spécial pour la fin du jeu */
+        .final-message {
+            background: #ebf8ff;
+            border: 2px solid #3182ce;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px auto;
+            max-width: 90%;
+        }
+
+        .final-message p {
+            color: #2c5282;
+            font-size: 1.2rem;
+            margin: 10px 0;
+        }
+
+        /* Responsive design */
+        @media (max-width: 480px) {
             .result-container {
-                padding: 15px;
+                padding: 20px;
                 margin: 10px;
             }
 
             h1 {
-                font-size: 1.5rem;
+                font-size: 1.8rem;
+            }
+
+            .score {
+                padding: 15px;
+                max-width: 95%;
             }
 
             .success-result p, .failure-result p {
@@ -116,6 +140,251 @@
             .btn-primary {
                 padding: 10px 20px;
                 font-size: 1rem;
+                width: 80%;
+                margin: 10px auto;
+            }
+        }
+        body {
+            background-color: #f0f5f0;
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-container {
+            max-width: 800px;
+            width: 90%;
+            margin: 20px auto;
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c5282;
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .success-result, .failure-result {
+            margin: 25px 0;
+        }
+
+        .success-result img, .failure-result img {
+            max-width: 100%;
+            height: auto;
+            max-height: 200px;
+            border-radius: 12px;
+            background: #ffffff;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            display: block;
+            border: 1px solid #e2e8f0;
+        }
+
+        .success-result p, .failure-result p {
+            color: #4a5568;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+
+        .score {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px auto;
+            border: 1px solid #e2e8f0;
+            max-width: 80%;
+        }
+
+        .score h2 {
+            color: #2c5282;
+            font-size: 1.5rem;
+            margin: 15px 0;
+            font-weight: 600;
+        }
+
+        .score p {
+            color: #4a5568;
+            margin: 12px 0;
+            font-size: 1.1rem;
+        }
+
+        .btn-primary {
+            background-color: #3182ce;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .btn-primary:hover {
+            background-color: #2c5282;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(49, 130, 206, 0.2);
+        }
+
+        .replay-button, .new-game-button {
+            margin-top: 25px;
+        }
+
+        /* Message spécial pour la fin du jeu */
+        .final-message {
+            background: #ebf8ff;
+            border: 2px solid #3182ce;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px auto;
+            max-width: 90%;
+        }
+
+        .final-message p {
+            color: #2c5282;
+            font-size: 1.2rem;
+            margin: 10px 0;
+        }
+        /* Styles pour le cadenas et l'animation */
+        /* Modifiez les styles du padlock-container */
+        .padlock-container {
+            position: relative;
+            width: 200px;
+            height: 250px; /* Augmenté pour plus d'espace */
+            margin: 0 auto 40px; /* Ajout d'une marge en bas */
+            perspective: 1000px;
+        }
+
+        /* Ajustez la position de l'image */
+        .plant-image {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            animation: revealImage 2s 1s forwards;
+            top: 0; /* Assurez-vous que l'image commence en haut */
+        }
+
+        /* Ajoutez un conteneur flex pour la success-result */
+        .success-result {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px; /* Espace entre les éléments */
+            margin: 25px 0;
+        }
+
+        /* Ajustez le style du paragraphe */
+        .success-result p {
+            margin-top: 20px; /* Espace supplémentaire au-dessus du texte */
+            width: 100%; /* Utilise toute la largeur disponible */
+            clear: both; /* Évite les chevauchements */
+        }
+
+        .lock-body {
+            position: absolute;
+            width: 80px;
+            height: 100px;
+            background: #3182ce;
+            border-radius: 10px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -30%);
+        }
+
+        .lock-hook {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 15px solid #3182ce;
+            border-radius: 50px 50px 0 0;
+            left: 50%;
+            top: 20%;
+            transform: translateX(-50%);
+            transform-origin: bottom;
+        }
+
+
+        @keyframes unlockAnimation {
+            0% {
+                transform: rotateY(0);
+            }
+            50% {
+                transform: rotateY(0);
+            }
+            100% {
+                transform: rotateY(90deg);
+            }
+        }
+
+        @keyframes revealImage {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Ajustements responsifs */
+        @media (max-width: 480px) {
+            .padlock-container {
+                width: 150px;
+                height: 150px;
+            }
+
+            .lock-body {
+                width: 60px;
+                height: 75px;
+            }
+
+            .lock-hook {
+                width: 45px;
+                height: 45px;
+                border-width: 12px;
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 480px) {
+            .result-container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .score {
+                padding: 15px;
+                max-width: 95%;
+            }
+
+            .success-result p, .failure-result p {
+                font-size: 1rem;
+            }
+
+            .btn-primary {
+                padding: 10px 20px;
+                font-size: 1rem;
+                width: 80%;
+                margin: 10px auto;
             }
         }
     </style>
@@ -124,56 +393,62 @@
     <div class="result-container">
         <h1>
             {% if parties_jouees >= 4 %}
-                Fin du jeu !
+                🏆 Mission Accomplie ! 🏆
             {% elseif isTimeout %}
-                Temps écoulé !
+                ⏰ Temps Écoulé ! ⏰
             {% elseif isSuccess %}
-                Bien joué ! Tu as trouvé le bon code !
+                ✨ Découverte Réussie ! ✨
             {% else %}
-                Code incorrect
+                Code Non Valide
             {% endif %}
         </h1>
 
         {% if parties_jouees >= 4 %}
             <div class="score">
-                <p>Vous avez joué avec toutes les plantes disponibles !</p>
-                <h2>Score final : {{ score }}</h2>
-                <p>Nombre total de parties jouées : {{ parties_jouees }}</p>
+                <p>🌿 Vous avez joué avec toutes les plantes de notre collection ! 🌿</p>
+                <h2>🏆 Score Final : {{ score }} points</h2>
+                <p>📚 Parties jouees : {{ parties_jouees }}/4 plantes </p>
                 <div class="new-game-button">
-                    <a href="{{ path('accueil') }}" class="btn btn-primary">Retour à l'accueil</a>
+                    <a href="{{ path('accueil') }}" class="btn btn-primary">🏠 Retour à l'Accueil</a>
                 </div>
             </div>
         {% elseif isTimeout %}
             <div class="failure-result">
                 <img src="{{ asset('images/game-over.png') }}" alt="Game Over" />
                 <div class="score">
-                    <p>Temps écoulé ! Vous avez joué {{ parties_jouees|default(0) }} parties en 5 minutes.</p>
-                    <h2>Score final : {{ score }}</h2>
+                    <p>⏰ Le temps s'est écoulé ! Vous avez joué {{ parties_jouees|default(0) }} parties en 5 minutes.</p>
+                    <h2>🎯 Score Final : {{ score }} points</h2>
                     <div class="new-game-button">
-                        <a href="{{ path('accueil') }}" class="btn btn-primary">Nouvelle partie</a>
+                        <a href="{{ path('accueil') }}" class="btn btn-primary">🔄 Nouvelle Exploration</a>
                     </div>
                 </div>
             </div>
         {% else %}
             {% if isSuccess %}
                 <div class="success-result">
-                    <img src="{{ asset('images/' ~ plante.image) }}" alt="{{ plante.nom }}" />
-                    <p>Félicitations ! Vous avez découvert : {{ plante.nom }}</p>
+                    <div class="padlock-container">
+                        <div class="padlock">
+                            <div class="lock-body"></div>
+                            <div class="lock-hook"></div>
+                        </div>
+                        <img src="{{ asset('images/' ~ plante.image) }}" alt="{{ plante.nom }}" class="plant-image" />
+                    </div>
+                    <p>✨ Magnifique découverte ! Vous avez identifié : {{ plante.nom }} ✨</p>
                 </div>
             {% else %}
                 <div class="failure-result">
                     <img src="{{ asset('images/plante/sauvage.png') }}" alt="sauvage"/>
-                    <p>Le code entré n'est pas correct. Essayez encore !</p>
+                    <p>🔍 Code non reconnu... Réessayer avec d'autres plantes </p>
                 </div>
             {% endif %}
 
             <div class="score">
-                <h2>Score : {{ score }}</h2>
-                <p>Parties jouées : {{ parties_jouees }}</p>
+                <h2>🎯 Score actuel : {{ score }} points</h2>
+                <p>📚 Nombre de parties jouées : {{ parties_jouees }}/4</p>
             </div>
 
             <div class="replay-button">
-                <a href="{{ path('commencer_jeu') }}" class="btn btn-primary">Rejouer</a>
+                <a href="{{ path('commencer_jeu') }}" class="btn btn-primary">🔄 Une autre partie</a>
             </div>
         {% endif %}
     </div>

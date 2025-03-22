@@ -3,103 +3,181 @@
 {% block title %}Décryptage des formules{% endblock %}
 
 {% block stylesheets %}
+    {{ parent() }}
     <style>
         body {
-            background-color: #f8f9fa; /* Fond blanc cassé */
+            background-color: #f0f5f0;
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 90%;
+            margin: 20px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
-            color: #0d6efd; /* Bleu principal */
-            font-weight: bold;
+            color: #2c5282;
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 600;
         }
+
 
         .timer {
-            background-color: #0d6efd; /* Bleu principal */
-            color: white;
-            padding: 10px;
-            border-radius: 10px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px 25px;
+            font-size: 1.8rem;
+            color: #2c5282;
+            display: inline-block;
+            margin: 20px auto;
+            font-weight: 600;
         }
 
+
         .card {
-            border: none;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
             border-radius: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
         .card-title {
-            color: #0d6efd; /* Bleu principal */
-            font-weight: bold;
+            color: #2c5282;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            font-weight: 600;
         }
 
         .formula-box {
-            background-color: #e7f1ff; /* Bleu clair */
-            border-radius: 10px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
             padding: 15px;
+            border-radius: 10px;
             margin: 15px 0;
         }
 
         .formula-box h4 {
-            color: #0d6efd; /* Bleu principal */
-            font-weight: bold;
-        }
-
-        .form-group label {
-            color: #0d6efd; /* Bleu principal */
-            font-weight: bold;
-        }
-
-        #final-code {
-            border: 2px solid #0d6efd; /* Bordure bleue */
-            border-radius: 10px;
-            padding: 10px;
-            font-size: 1.1rem;
-            text-align: center;
-        }
-
-        #final-code:focus {
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-        }
-
-        .btn-primary {
-            background-color: #0d6efd; /* Bleu principal */
-            border: none;
-            padding: 10px 20px;
-            font-size: 1.1rem;
-            border-radius: 30px; /* Boutons arrondis */
-            font-weight: bold;
-        }
-
-        .btn-primary:hover {
-            background-color: #0b5ed7; /* Bleu plus foncé au survol */
-            box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
-        }
-
-        .card-text {
-            color: #6c757d; /* Gris pour le texte */
+            color: #2d3748;
+            margin: 0;
+            font-size: 1.2rem;
         }
 
         .img-fluid {
+            background-color: #ffffff;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
             border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            max-height: 200px;
+            margin: 15px auto;
+            display: block;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        #answer-zone {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 30px;
+            border: 1px solid #e2e8f0;
+        }
+
+        #final-code {
+            background: #ffffff;
+            border: 2px solid #3182ce;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 1.2rem;
+            text-align: center;
+            color: #2d3748;
+            max-width: 200px;
+            margin: 15px auto;
+            transition: border-color 0.2s ease;
+        }
+
+        #final-code:focus {
+            outline: none;
+            border-color: #2c5282;
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+        }
+
+        label {
+            color: #2d3748;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .btn-primary {
+            background-color: #3182ce;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #2c5282;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(49, 130, 206, 0.2);
+        }
+
+        .timer.warning {
+            color: #e53e3e;
+            border-color: #e53e3e;
+        }
+
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+
+            .timer {
+                font-size: 1.5rem;
+                padding: 10px 20px;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            .card-title {
+                font-size: 1.2rem;
+            }
+
+            #final-code {
+                width: 80%;
+            }
         }
     </style>
 {% endblock %}
 
+
 {% block body %}
     <div class="container">
-        <h1 class="text-center my-4">Décryptage des formules</h1>
+        <h1 class="text-center my-4">Trouvez le code secret</h1>
 
         <div id="game-container">
-            <!-- Chronomètre global -->
             <div class="timer mb-4 text-center">
                 Temps restant : <span id="global-timer">5:00</span>
             </div>
-            <!-- Affichage des formules chimiques une par une -->
             <div id="formules-container">
                 {% for molecule in molecules %}
                     <div class="formule" data-index="{{ loop.index0 }}" style="display: none;">
@@ -116,7 +194,7 @@
                                          style="max-height: 200px; width: auto;">
                                 {% endif %}
 
-                                <p class="card-text">{{ molecule.information }}</p>
+                                <i><p class="card-text">{{ molecule.information }}</p></i>
 
                             </div>
                         </div>
@@ -124,7 +202,7 @@
                 {%  endfor %}
             </div>
 
-            <!-- Zone de réponse -->
+
             <div id="answer-zone" class="text-center mt-4">
                 <div class="form-group">
                     <label for="final-code" class="mb-2">
@@ -146,7 +224,7 @@
             const formules = document.querySelectorAll('.formule');
 
             let globalTimeRemaining = {{ timeRemaining }};
-            let formulaTimeInterval = 1; // Chaque formule apparaît toutes les 5 secondes
+            let formulaTimeInterval = 1;
             let currentFormulaIndex = 0;
 
             function showNextFormula() {
@@ -159,10 +237,10 @@
                 }
             }
 
-            // Lancer l'affichage de la première formule
+
             showNextFormula();
 
-            // Ajouter le style pour l'animation
+
             const style = document.createElement('style');
             style.textContent = `
                 @keyframes pulse {
@@ -173,7 +251,7 @@
             `;
             document.head.appendChild(style);
 
-            // Chronomètre global avec vérification du temps
+
             const globalTimer = setInterval(() => {
                 if (globalTimeRemaining <= 0) {
                     clearInterval(globalTimer);
@@ -186,7 +264,7 @@
                     return;
                 }
 
-                // Vérification côté serveur toutes les 5 secondes
+
                 if (globalTimeRemaining % 5 === 0) {
                     fetch('{{ path('validate_answer') }}', {
                         method: 'POST',
@@ -203,12 +281,12 @@
                         });
                 }
 
-                // Mise à jour de l'affichage du timer
+
                 const minutes = Math.floor(globalTimeRemaining / 60);
                 const seconds = globalTimeRemaining % 60;
                 globalTimerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 
-                // Effet visuel pour les 30 dernières secondes
+
                 if (globalTimeRemaining <= 30) {
                     globalTimerElement.style.color = 'red';
                     globalTimerElement.style.animation = 'pulse 1s infinite';
@@ -217,7 +295,7 @@
                 globalTimeRemaining--;
             }, 1000);
 
-            // Gestion de la validation du code
+
             validateButton.addEventListener('click', function(event) {
                 event.preventDefault();
 
