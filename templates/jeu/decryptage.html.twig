@@ -14,28 +14,27 @@
             <!-- Affichage des formules chimiques une par une -->
             <div id="formules-container">
                 {% for molecule in molecules %}
-                <div class="formule" data-index="{{ loop.index0 }}" style="display: none;">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <h3 class="card-title">Formule {{ loop.index }}</h3>
-                            <div class="formula-box mb-3">
-                                <h4>{{ molecule.formuleChimique }}</h4>
+                    <div class="formule" data-index="{{ loop.index0 }}" style="display: none;">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <h3 class="card-title">Formule {{ loop.index }}</h3>
+                                <div class="formula-box mb-3">
+                                    <h4>{{ molecule.formuleChimique }}</h4>
+                                </div>
+                                {% if molecule.image %}
+                                    <img src="{{ asset('images/molecules/' ~ molecule.image) }}"
+                                         alt="Molécule {{ molecule.formuleChimique }}"
+                                         class="img-fluid mb-3"
+                                         style="max-height: 200px; width: auto;">
+                                {% endif %}
+
+                                <p class="card-text">{{ molecule.information }}</p>
+
                             </div>
-                            {% if molecule.image %}
-                                <img src="{{ asset('images/molecules/' ~ molecule.image) }}"
-                                     alt="Molécule {{ molecule.formuleChimique }}"
-                                     class="img-fluid mb-3"
-                                     style="max-height: 200px; width: auto;">
-                            {% endif %}
-
-                            <p class="card-text">{{ molecule.information }}</p>
-
                         </div>
                     </div>
-                </div>
                 {%  endfor %}
             </div>
-
 
             <!-- Zone de réponse -->
             <div id="answer-zone" class="text-center mt-4">
@@ -43,54 +42,19 @@
                     <label for="final-code" class="mb-2">
                         <strong>Entrez le mot secret :</strong>
                     </label>
-                    <input type="text" id="final-code" class="form-control mx-auto" style="max-width: 200px;">
+                    <input type="text" id="final-code" name="code" class="form-control mx-auto" style="max-width: 200px;" required>
                 </div>
-                <button id="validate-button" class="btn btn-primary mt-3">Valider</button>
+                <button type="submit" class="btn btn-primary mt-3">Valider</button>
             </div>
         </div>
     </div>
-
-{% endblock %}
-
-{% block stylesheets %}
-    <style>
-        .card {
-            transition: transform 0.2s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .card:hover {
-            transform: scale(1.02);
-        }
-        .formula-box {
-            background-color: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
-        .formula-box h4 {
-            margin: 0;
-            color: #007bff;
-            font-weight: bold;
-        }
-        #global-timer {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #dc3545;
-        }
-        .formula-timer {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #28a745;
-            margin-top: 10px;
-        }
-    </style>
 {% endblock %}
 
 {% block javascripts %}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const globalTimerElement = document.getElementById('global-timer');
-            const validateButton = document.getElementById('validate-button');
+            const validateButton = document.querySelector('button[type="submit"]');
             const finalCodeInput = document.getElementById('final-code');
             const formules = document.querySelectorAll('.formule');
 
@@ -103,7 +67,7 @@
                     formules[currentFormulaIndex].style.display = 'block';
                     currentFormulaIndex++;
                     if (currentFormulaIndex < formules.length) {
-                        setTimeout(showNextFormula, formulaTimeInterval * 1000); // Afficher la suivante après 15s
+                        setTimeout(showNextFormula, formulaTimeInterval * 1000); // Afficher la suivante après 5s
                     }
                 }
             }
@@ -115,11 +79,8 @@
             const globalTimer = setInterval(() => {
                 if (globalTimeRemaining <= 0) {
                     clearInterval(globalTimer);
-                    window.location.href = "{{ path('resultat', {
-                        'success': false,
-                        'timeout': true,
-                        'parties_jouees': parties_jouees
-                    }) }}";
+                    // Redirection en cas de temps écoulé
+                    window.location.href = "{{ path('resultat', { 'success': false, 'timeout': true }) }}";
                     return;
                 }
 
@@ -129,42 +90,34 @@
                 globalTimeRemaining--;
             }, 1000);
 
-            // Validation du mot secret
-            validateButton.addEventListener('click', function() {
-                const finalCode = finalCodeInput.value.trim().toUpperCase();
+            // Gestion de l'envoi du formulaire via JavaScript
+            validateButton.addEventListener('click', function(event) {
+                event.preventDefault(); // Empêche le rechargement de la page
 
-                if (finalCode === '') {
+                const code = finalCodeInput.value.trim().toUpperCase();
+
+                if (code === '') {
                     alert('Veuillez entrer un code');
                     return;
                 }
 
-                validateButton.disabled = true;
-
                 fetch('{{ path('validate_answer') }}', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        code: finalCode
-                    })
+                    body: JSON.stringify({ code: code, timeRemaining: globalTimeRemaining })
                 })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.correct) {
-                            score++; // Incrémenter le score si la réponse est correcte
-                            alert('Bonne réponse ! Votre score est maintenant : ' + score);
+                        if (data.redirectUrl) {
+                            window.location.href = data.redirectUrl;
                         } else {
-                            alert('Mauvaise réponse');
+                            alert(data.message || 'Une erreur est survenue.');
                         }
-                        // if (data.redirectUrl) {
-                        //     clearInterval(globalTimer);
-                        //     window.location.href = data.redirectUrl;}
                     })
                     .catch(error => {
-                        console.error('Erreur:', error);
-                        validateButton.disabled = false;
-                        alert('Une erreur est survenue lors de la validation');
+                        console.error('Erreur lors de la validation :', error);
                     });
             });
 
@@ -176,6 +129,5 @@
                 }
             });
         });
-
     </script>
 {% endblock %}

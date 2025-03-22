@@ -26,7 +26,11 @@
         </div>
         {% if not isTimeout %}
             <div class="replay-button">
-                <a href="{{ path('commencer_jeu') }}" class="btn btn-primary">Rejouer</a>
+                {% if parties_jouees < 4 %}
+                    <a href="{{ path('commencer_jeu') }}" class="btn btn-primary">Rejouer</a>
+                {% else %}
+                    <p>Vous avez terminé toutes les parties disponibles !</p>
+                {% endif %}
             </div>
         {% else %}
             <div class="new-game-button">

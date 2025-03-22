@@ -23,9 +23,6 @@ class JeuController extends AbstractController
         return $this->render('jeu/accueil.html.twig');
     }
 
-    // Dans JeuController.php
-
-    // Dans JeuController.php
 
     #[Route('/jeu', name: 'commencer_jeu')]
     public function startGame(
@@ -35,75 +32,93 @@ class JeuController extends AbstractController
         SessionInterface $session,
         Request $request
     ): Response {
-        // Initialiser le chronomètre UNIQUEMENT si on vient de la page d'accueil
-        // ou si le chronomètre n'existe pas encore
-        if ($request->query->get('from') === 'accueil' || !$session->has('global_start_time')) {
-            $session->set('global_start_time', time());
-            $session->set('parties_jouees', 0);
-            $session->set('formules_trouvees', []); // Initialiser la liste des formules trouvées
-        }
+        try {
+            // Initialisation de la session
+            if ($request->query->get('from') === 'accueil' || !$session->has('global_start_time')) {
+                $session->set('global_start_time', time());
+                $session->set('parties_jouees', 0);
+                $session->set('formules_trouvees', []);
+                $session->set('plantes_jouees', []);
+                $session->set('score', 0);// Réinitialiser les plantes jouées
+            }
 
-        // Calculer le temps restant depuis le début du jeu
-        $globalStartTime = $session->get('global_start_time');
-        $timeElapsed = time() - $globalStartTime;
-        $timeRemaining = 300 - $timeElapsed; // 5 minutes
+            // Vérification du temps
+            $globalStartTime = $session->get('global_start_time');
+            $timeElapsed = time() - $globalStartTime;
+            $timeRemaining = 300 - $timeElapsed;
 
-        // Si le temps est écoulé
-        if ($timeRemaining <= 0) {
-            return $this->redirectToRoute('resultat', [
-                'success' => false,
-                'timeout' => true,
+            // Si le temps est écoulé
+            if ($timeRemaining <= 0) {
+                // Réinitialiser la session pour un nouveau jeu
+                $session->set('plantes_jouees', []);
+                return $this->redirectToRoute('resultat', [
+                    'success' => false,
+                    'timeout' => true,
+                    'parties_jouees' => $session->get('parties_jouees', 0)
+                ]);
+            }
+
+            // Sélection de la plante
+            $plantesJouees = $session->get('plantes_jouees', []);
+            $plante = $planteRepository->findRandomPlante($plantesJouees);
+
+            // Si toutes les plantes ont été jouées
+            if (!$plante) {
+                if ($timeRemaining > 0) {
+                    // S'il reste du temps mais toutes les plantes ont été jouées
+                    $this->addFlash('info', 'Vous avez joué toutes les plantes disponibles !');
+                    return $this->redirectToRoute('reultat');
+                } else {
+                    // Si le temps est écoulé, réinitialiser les plantes jouées
+                    $session->set('plantes_jouees', []);
+                    $plante = $planteRepository->findRandomPlante([]);
+                }
+            }
+
+            // Récupération des molécules
+            $molecules = $moleculeRepository->findBy(['plante' => $plante->getId()]);
+
+            // Création de la partie
+            $partie = new Partie();
+            $partie->setPlante($plante);
+            $partie->setEtat('en_cours');
+            $partie->setScore(0);
+
+            $entityManager->persist($partie);
+            $entityManager->flush();
+
+            // Mise à jour de la session
+            $plantesJouees[] = $plante->getId();
+            $session->set('plantes_jouees', $plantesJouees);
+            $session->set('plante_id', $plante->getId());
+            $session->set('partie_id', $partie->getId());
+            $session->set('molecules', $molecules);
+
+            $partiesJouees = $session->get('parties_jouees', 0);
+            if ($partiesJouees >= 4) {
+                return $this->render('jeu/resultat.html.twig', [
+                    'isSuccess' => true,
+                    'score' => $session->get('score', 0),
+                    'message' => 'Vous avez joué avec les 4 plantes disponibles. Voici votre score final :',
+                    'parties_jouees' => $partiesJouees,
+                    'showRejouerButton' => false, // Masquer le bouton "Rejouer"
+                ]);
+            }
+
+            return $this->render('jeu/decryptage.html.twig', [
+                'plante' => $plante,
+                'molecules' => $molecules,
+                'timeRemaining' => $timeRemaining,
                 'parties_jouees' => $session->get('parties_jouees', 0)
             ]);
-        }
 
-        // Incrémenter le compteur de parties jouées si ce n'est pas une nouvelle partie
-        if ($request->query->get('from') !== 'accueil') {
-            $session->set('parties_jouees', $session->get('parties_jouees', 0) + 1);
-        }
-        // Récupérer les IDs des plantes déjà jouées
-        $plantesJouees = $session->get('plantes_jouees', []);
-
-        // Sélectionner une plante aléatoire
-        $plante = $planteRepository->findRandomPlante($plantesJouees);
-        if (!$plante) {
-            $this->addFlash('error', 'Aucune plante n\'est disponible pour jouer.');
+        } catch (\Exception $e) {
+            // Log l'erreur
+            $this->addFlash('error', 'Une erreur est survenue lors du démarrage du jeu.');
             return $this->redirectToRoute('accueil');
         }
-        // Récupérer l'ID de la plante
-        $planteId = $plante->getId();
-        // Ajouter la plante à la liste des plantes jouées
-        $plantesJouees[] = $plante->getId();
-        $session->set('plantes_jouees', $plantesJouees);
-         // Récupérer les molécules
-        $molecules = $moleculeRepository->findBy(['plante' => $plante->getId()]);
-//        $molecule = $moleculeRepository->findRandomMolecule($plante->getId());
-//        if (!$molecule) {
-//            $this->addFlash('error', 'Aucune molécule n\'est disponible pour cette plante.');
-//            return $this->redirectToRoute('accueil');
-//        }
-        // Créer une nouvelle partie
-        $partie = new Partie();
-        $partie->setPlante($plante);
-        $partie->setEtat('en_cours');
-        $partie->setScore(0);
-
-        $entityManager->persist($partie);
-        $entityManager->flush();
-
-        // Mettre à jour la session
-        $session->set('plante_id', $plante->getId());
-        $session->set('partie_id', $partie->getId());
-        $session->set('molecules', $molecules); // Stocker les molécules dans la session
-
-        return $this->render('jeu/decryptage.html.twig', [
-            'plante' => $plante,
-            'molecules' => $molecules,
-            'timeRemaining' => $timeRemaining,
-            'parties_jouees' => $session->get('parties_jouees', 0)
-        ]);
     }
-    #[Route('/validate-answer', name: 'validate_answer', methods: ['POST'])]
+    #[Route('/valider', name: 'validate_answer')]
     public function validateAnswer(
         Request $request,
         SessionInterface $session,
@@ -112,21 +127,28 @@ class JeuController extends AbstractController
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
         $planteId = $session->get('plante_id');
-
+        $partieId = $session->get('partie_id');
 
         $globalStartTime = $session->get('global_start_time');
         $currentTime = time();
         $timeElapsed = $currentTime - $globalStartTime;
         $timeRemaining = 300 - $timeElapsed;
 
-        // Vérifier si le temps est écoulé (5 minutes = 300 secondes)
+        // Récupérer le score existant depuis la session
+        $score = $session->get('score', 0);
+
+        // Vérifier si le temps est écoulé
         if ($timeRemaining <= 0) {
+            // Réinitialiser le score à 0 quand le temps est écoulé
+            $session->set('score', 0);
+
             return new JsonResponse([
                 'status' => 'timeout',
                 'redirectUrl' => $this->generateUrl('resultat', [
                     'success' => false,
                     'timeout' => true,
-                    'parties_jouees' => $session->get('parties_jouees', 0)
+                    'parties_jouees' => $session->get('parties_jouees', 0),
+                    'score' => 0 // Score réinitialisé
                 ])
             ]);
         }
@@ -134,10 +156,25 @@ class JeuController extends AbstractController
         $cadenas = $cadenasRepository->findOneBy(['plante' => $planteId]);
         $motSecret = $cadenas->getMotSecret();
 
+        // Récupérer la partie en cours
+        $partie = $entityManager->getRepository(Partie::class)->find($partieId);
+        $codeSaisi = trim(strtolower($data['code']));
+        $motSecret = trim(strtolower($motSecret));
+
         // Vérifier si le code est correct
-        if ($data['code'] === $motSecret) {
-            // Calculer le score en fonction du temps restant
-            $score = max(0, 100 - floor($timeElapsed / 3));
+        if ($codeSaisi === $motSecret) {
+            // Incrémenter le score
+            $score += 1;
+
+            // Mettre à jour le score et l'état de la partie
+            if ($partie) {
+                $partie->setScore($score);
+                $partie->setEtat('terminee');
+                $entityManager->persist($partie);
+                $entityManager->flush();
+            }
+
+            // Mettre à jour le score dans la session
             $session->set('score', $score);
 
             // Incrémenter le compteur de parties
@@ -149,18 +186,27 @@ class JeuController extends AbstractController
                 'redirectUrl' => $this->generateUrl('resultat', [
                     'success' => true,
                     'timeout' => false,
-                    'parties_jouees' => $session->get('parties_jouees')
+                    'parties_jouees' => $session->get('parties_jouees'),
+                    'score' => $score
                 ])
             ]);
         }
 
         // Si le code est incorrect
+        if ($partie) {
+            $partie->setEtat('echec');
+            $partie->setScore($score); // Garder le score actuel
+            $entityManager->persist($partie);
+            $entityManager->flush();
+        }
+
         return new JsonResponse([
             'status' => 'failure',
             'redirectUrl' => $this->generateUrl('resultat', [
                 'success' => false,
                 'timeout' => false,
-                'parties_jouees' => $session->get('parties_jouees')
+                'parties_jouees' => $session->get('parties_jouees'),
+                'score' => $score
             ])
         ]);
     }
