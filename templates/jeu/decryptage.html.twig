@@ -2,6 +2,94 @@
 
 {% block title %}Décryptage des formules{% endblock %}
 
+{% block stylesheets %}
+    <style>
+        body {
+            background-color: #f8f9fa; /* Fond blanc cassé */
+        }
+
+        h1 {
+            color: #0d6efd; /* Bleu principal */
+            font-weight: bold;
+        }
+
+        .timer {
+            background-color: #0d6efd; /* Bleu principal */
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            color: #0d6efd; /* Bleu principal */
+            font-weight: bold;
+        }
+
+        .formula-box {
+            background-color: #e7f1ff; /* Bleu clair */
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .formula-box h4 {
+            color: #0d6efd; /* Bleu principal */
+            font-weight: bold;
+        }
+
+        .form-group label {
+            color: #0d6efd; /* Bleu principal */
+            font-weight: bold;
+        }
+
+        #final-code {
+            border: 2px solid #0d6efd; /* Bordure bleue */
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        #final-code:focus {
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        .btn-primary {
+            background-color: #0d6efd; /* Bleu principal */
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            border-radius: 30px; /* Boutons arrondis */
+            font-weight: bold;
+        }
+
+        .btn-primary:hover {
+            background-color: #0b5ed7; /* Bleu plus foncé au survol */
+            box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+        }
+
+        .card-text {
+            color: #6c757d; /* Gris pour le texte */
+        }
+
+        .img-fluid {
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     <div class="container">
         <h1 class="text-center my-4">Décryptage des formules</h1>
@@ -49,7 +137,6 @@
         </div>
     </div>
 {% endblock %}
-
 {% block javascripts %}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -59,7 +146,7 @@
             const formules = document.querySelectorAll('.formule');
 
             let globalTimeRemaining = {{ timeRemaining }};
-            let formulaTimeInterval = 5; // Chaque formule apparaît toutes les 5 secondes
+            let formulaTimeInterval = 1; // Chaque formule apparaît toutes les 5 secondes
             let currentFormulaIndex = 0;
 
             function showNextFormula() {
@@ -67,7 +154,7 @@
                     formules[currentFormulaIndex].style.display = 'block';
                     currentFormulaIndex++;
                     if (currentFormulaIndex < formules.length) {
-                        setTimeout(showNextFormula, formulaTimeInterval * 1000); // Afficher la suivante après 5s
+                        setTimeout(showNextFormula, formulaTimeInterval * 1000);
                     }
                 }
             }
@@ -75,24 +162,75 @@
             // Lancer l'affichage de la première formule
             showNextFormula();
 
-            // Chronomètre global
+            // Ajouter le style pour l'animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes pulse {
+                    0% { transform: scale(1); }
+                    50% { transform: scale(1.1); }
+                    100% { transform: scale(1); }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Chronomètre global avec vérification du temps
             const globalTimer = setInterval(() => {
                 if (globalTimeRemaining <= 0) {
                     clearInterval(globalTimer);
-                    // Redirection en cas de temps écoulé
-                    window.location.href = "{{ path('resultat', { 'success': false, 'timeout': true }) }}";
+                    window.location.href = "{{ path('resultat', {
+                        'success': false,
+                        'timeout': true,
+                        'parties_jouees': parties_jouees|default(0),
+                        'score': 0
+                    }) }}";
                     return;
                 }
 
+                // Vérification côté serveur toutes les 5 secondes
+                if (globalTimeRemaining % 5 === 0) {
+                    fetch('{{ path('validate_answer') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ checkTime: true })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'timeout') {
+                                window.location.href = data.redirectUrl;
+                            }
+                        });
+                }
+
+                // Mise à jour de l'affichage du timer
                 const minutes = Math.floor(globalTimeRemaining / 60);
                 const seconds = globalTimeRemaining % 60;
                 globalTimerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+                // Effet visuel pour les 30 dernières secondes
+                if (globalTimeRemaining <= 30) {
+                    globalTimerElement.style.color = 'red';
+                    globalTimerElement.style.animation = 'pulse 1s infinite';
+                }
+
                 globalTimeRemaining--;
             }, 1000);
 
-            // Gestion de l'envoi du formulaire via JavaScript
+            // Gestion de la validation du code
             validateButton.addEventListener('click', function(event) {
-                event.preventDefault(); // Empêche le rechargement de la page
+                event.preventDefault();
+
+                // Vérifier d'abord si le temps n'est pas écoulé
+                if (globalTimeRemaining <= 0) {
+                    window.location.href = "{{ path('resultat', {
+                        'success': false,
+                        'timeout': true,
+                        'parties_jouees': parties_jouees|default(0),
+                        'score': 0
+                    }) }}";
+                    return;
+                }
 
                 const code = finalCodeInput.value.trim().toUpperCase();
 
@@ -121,7 +259,7 @@
                     });
             });
 
-            // Permettre la validation avec la touche Entrée
+            // Validation avec la touche Entrée
             finalCodeInput.addEventListener('keypress', function(event) {
                 if (event.key === 'Enter') {
                     event.preventDefault();

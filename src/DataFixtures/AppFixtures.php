@@ -47,14 +47,14 @@ class AppFixtures extends Fixture
 
         $cadenas2 = new Cadenas();
         $cadenas2->setId(2);
-        $cadenas2->setMotSecret('XaRXT');
+        $cadenas2->setMotSecret('xarxt');
         $cadenas2->setImage('cadenas2.png');
         $cadenas2->setPlante($plante2);
         $manager->persist($cadenas2);
 
         $cadenas3 = new Cadenas();
         $cadenas3->setId(3);
-        $cadenas3->setMotSecret('jRAtO');
+        $cadenas3->setMotSecret('jrato');
         $cadenas3->setImage('cadenas3.png');
         $cadenas3->setPlante($plante3);
         $manager->persist($cadenas3);

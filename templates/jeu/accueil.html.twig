@@ -2,9 +2,43 @@
 
 {% block title %}Le Code Secret des Plantes{% endblock %}
 
+{% block stylesheets %}
+    <style>
+        body {
+            background-color: #f8f9fa; /* Couleur de fond blanc cassé */
+        }
+        h1 {
+            color: #0d6efd; /* Bleu principal */
+            font-weight: bold;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre légère */
+            background-color: #ffffff; /* Fond blanc */
+        }
+        .card-body h2 {
+            color: #0d6efd; /* Bleu principal */
+            font-weight: bold;
+        }
+        .card-body p {
+            color: #6c757d; /* Gris pour le texte */
+        }
+        .btn-primary {
+            background-color: #0d6efd; /* Bleu principal */
+            border: none;
+            font-size: 1.2rem;
+            padding: 10px 20px;
+            border-radius: 30px; /* Boutons arrondis */
+        }
+        .btn-primary:hover {
+            background-color: #0b5ed7; /* Bleu plus foncé au survol */
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     <div class="container text-center">
-        <h1 class="mt-5">Le Code Secret des Plantes</h1>
+
 
         <div class="card mt-5">
             <div class="card-body">
@@ -16,6 +50,6 @@
             </div>
         </div>
 
-
-        <a href="{{ path('commencer_jeu', {'from': 'accueil'}) }}" class="btn btn-primary">Commencer</a>    </div>
+        <a href="{{ path('commencer_jeu', {'from': 'accueil'}) }}" class="btn btn-primary mt-4">Commencer</a>
+    </div>
 {% endblock %}

@@ -1,40 +1,179 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Resultat{% endblock %}
+{% block stylesheets %}
+    <style>
+        body {
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh; /* Hauteur minimale de 100% de la hauteur de la fenêtre */
+            display: flex;
+            align-items: center; /* Centre verticalement */
+            justify-content: center; /* Centre horizontalement */
+        }
+
+        .result-container {
+            max-width: 800px;
+            width: 90%; /* Utilise 90% de la largeur disponible */
+            margin: 20px;
+            text-align: center;
+            padding: 20px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #0d6efd;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 1.8rem; /* Taille adaptée aux mobiles */
+        }
+
+        .success-result img, .failure-result img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            max-height: 30vh; /* Limite la hauteur de l'image */
+            object-fit: contain;
+        }
+
+        .success-result p, .failure-result p {
+            font-size: 1.1rem;
+            color: #6c757d;
+            font-weight: 500;
+            margin: 15px 0;
+        }
+
+        .score {
+            margin: 20px auto;
+            padding: 15px;
+            background-color: #e7f1ff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 80%;
+        }
+
+        .score h2 {
+            color: #0d6efd;
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin: 10px 0;
+        }
+
+        .score p {
+            color: #6c757d;
+            margin: 10px 0;
+        }
+
+        .replay-button, .new-game-button {
+            margin-top: 20px;
+        }
+
+        .btn-primary {
+            background-color: #0d6efd;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px 0;
+        }
+
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+        }
+
+        .replay-button p {
+            font-size: 1.1rem;
+            color: #6c757d;
+            font-weight: 500;
+            margin: 15px 0;
+        }
+
+        /* Ajustements pour les très petits écrans */
+        @media (max-width: 380px) {
+            .result-container {
+                padding: 15px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .success-result p, .failure-result p {
+                font-size: 1rem;
+            }
+
+            .btn-primary {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+{% endblock %}
 {% block body %}
     <div class="result-container">
-        <h1>{{ message }}</h1>
-
-        {% if isSuccess %}
-            <div class="success-result">
-                <img src="{{ asset('images/' ~ plante.image) }}" alt="{{ plante.nom }}" />
-                <p>Félicitations ! Vous avez découvert : {{ plante.nom }}</p>
-            </div>
-        {% else %}
-            <div class="failure-result">
-                {% if isTimeout %}
-                    <img src="{{ asset('images/game-over.png') }}" alt="Game Over" />
-                    <p>Temps écoulé ! Vous avez joué {{ parties_jouees|default(0) }} parties en 5 minutes.</p>
-                {% else %}
-                    <img src="{{ asset('images/plante-sauvage.png') }}" alt="Plante Sauvage" />
-                {% endif %}
-            </div>
-        {% endif %}
-
-        <div class="score">
-            <h2>Score : {{ score }}</h2>
-            {% if isTimeout %}
-                <p>Nombre total de parties jouées : {{ parties_jouees }}</p>
+        <h1>
+            {% if parties_jouees >= 4 %}
+                Fin du jeu !
+            {% elseif isTimeout %}
+                Temps écoulé !
+            {% elseif isSuccess %}
+                Bien joué ! Tu as trouvé le bon code !
+            {% else %}
+                Code incorrect
             {% endif %}
-        </div>
-        {% if not isTimeout %}
-            <div class="replay-button">
-                {% if parties_jouees < 4 %}
-                    <a href="{{ path('commencer_jeu') }}" class="btn btn-primary">Rejouer</a>
-                {% else %}
-                    <p>Vous avez terminé toutes les parties disponibles !</p>
-                {% endif %}
+        </h1>
+
+        {% if parties_jouees >= 4 %}
+            <div class="score">
+                <p>Vous avez joué avec toutes les plantes disponibles !</p>
+                <h2>Score final : {{ score }}</h2>
+                <p>Nombre total de parties jouées : {{ parties_jouees }}</p>
+                <div class="new-game-button">
+                    <a href="{{ path('accueil') }}" class="btn btn-primary">Retour à l'accueil</a>
+                </div>
+            </div>
+        {% elseif isTimeout %}
+            <div class="failure-result">
+                <img src="{{ asset('images/game-over.png') }}" alt="Game Over" />
+                <div class="score">
+                    <p>Temps écoulé ! Vous avez joué {{ parties_jouees|default(0) }} parties en 5 minutes.</p>
+                    <h2>Score final : {{ score }}</h2>
+                    <div class="new-game-button">
+                        <a href="{{ path('accueil') }}" class="btn btn-primary">Nouvelle partie</a>
+                    </div>
+                </div>
             </div>
         {% else %}
-            <div class="new-game-button">
-                <a href="{{ path('accueil') }}" class="btn btn-primary">Nouvelle partie</a>
+            {% if isSuccess %}
+                <div class="success-result">
+                    <img src="{{ asset('images/' ~ plante.image) }}" alt="{{ plante.nom }}" />
+                    <p>Félicitations ! Vous avez découvert : {{ plante.nom }}</p>
+                </div>
+            {% else %}
+                <div class="failure-result">
+                    <img src="{{ asset('images/plante/sauvage.png') }}" alt="sauvage"/>
+                    <p>Le code entré n'est pas correct. Essayez encore !</p>
+                </div>
+            {% endif %}
+
+            <div class="score">
+                <h2>Score : {{ score }}</h2>
+                <p>Parties jouées : {{ parties_jouees }}</p>
+            </div>
+
+            <div class="replay-button">
+                <a href="{{ path('commencer_jeu') }}" class="btn btn-primary">Rejouer</a>
             </div>
         {% endif %}
     </div>
