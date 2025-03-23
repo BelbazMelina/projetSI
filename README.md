@@ -33,8 +33,11 @@
    ```bash
    symfony console doctrine:migrations:migrate
    ```
-   
-8. Lancer le projet :
+8. Charger les fixtures :
+   ```bash
+   symfony console doctrine:fixtures:load
+   ```
+9. Lancer le projet :
    ```bash
    symfony server:start --no-tls --listen-ip=0.0.0.0 --d
    ```

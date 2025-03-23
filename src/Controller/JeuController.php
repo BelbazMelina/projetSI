@@ -185,7 +185,7 @@ class JeuController extends AbstractController
             ]);
         }
 
-       
+
         if ($partie) {
             $partie->setEtat('echec');
             $partie->setScore($score);
@@ -211,7 +211,7 @@ class JeuController extends AbstractController
     ): Response {
         $isSuccess = $request->query->get('success', false);
         $isTimeout = $request->query->get('timeout', false);
-        $score = $request->query->get('score', 0);
+        $score = $session->get('score', 0);
         $partieId = $session->get('partie_id');
 
         $plantesJouees = $session->get('plantes_jouees', []);
