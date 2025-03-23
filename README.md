@@ -38,8 +38,14 @@
    ```bash
    symfony server:start --no-tls --listen-ip=0.0.0.0 --d
    ```
-Si besoin terminal en mode postgres sql :
+## Si besoin terminal en mode postgres sql :
+```bash
  1. docker exec -ti symfony_postgres sh
- 2. su - postgres
- ou aussi c'est possible avec cette commande : 
- 1. docker exec -it symfony_postgres psql -U symfony -d symfony_db
+```  
+```bash
+ 2. su - postgres 
+ ```  
+ ## ou aussi c'est possible avec cette commande :
+```bash
+  docker exec -it symfony_postgres psql -U symfony -d symfony_db
+```

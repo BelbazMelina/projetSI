@@ -299,7 +299,7 @@
             validateButton.addEventListener('click', function(event) {
                 event.preventDefault();
 
-                // Vérifier d'abord si le temps n'est pas écoulé
+
                 if (globalTimeRemaining <= 0) {
                     window.location.href = "{{ path('resultat', {
                         'success': false,
@@ -337,7 +337,7 @@
                     });
             });
 
-            // Validation avec la touche Entrée
+
             finalCodeInput.addEventListener('keypress', function(event) {
                 if (event.key === 'Enter') {
                     event.preventDefault();

@@ -101,7 +101,7 @@
             margin-top: 25px;
         }
 
-        /* Message spécial pour la fin du jeu */
+
         .final-message {
             background: #ebf8ff;
             border: 2px solid #3182ce;
@@ -117,7 +117,7 @@
             margin: 10px 0;
         }
 
-        /* Responsive design */
+
         @media (max-width: 480px) {
             .result-container {
                 padding: 20px;
@@ -242,7 +242,7 @@
             margin-top: 25px;
         }
 
-        /* Message spécial pour la fin du jeu */
+
         .final-message {
             background: #ebf8ff;
             border: 2px solid #3182ce;
@@ -257,17 +257,16 @@
             font-size: 1.2rem;
             margin: 10px 0;
         }
-        /* Styles pour le cadenas et l'animation */
-        /* Modifiez les styles du padlock-container */
+
         .padlock-container {
             position: relative;
             width: 200px;
-            height: 250px; /* Augmenté pour plus d'espace */
-            margin: 0 auto 40px; /* Ajout d'une marge en bas */
+            height: 250px;
+            margin: 0 auto 40px;
             perspective: 1000px;
         }
 
-        /* Ajustez la position de l'image */
+
         .plant-image {
             position: absolute;
             width: 100%;
@@ -275,23 +274,23 @@
             object-fit: contain;
             opacity: 0;
             animation: revealImage 2s 1s forwards;
-            top: 0; /* Assurez-vous que l'image commence en haut */
+            top: 0;
         }
 
-        /* Ajoutez un conteneur flex pour la success-result */
+
         .success-result {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 30px; /* Espace entre les éléments */
+            gap: 30px;
             margin: 25px 0;
         }
 
-        /* Ajustez le style du paragraphe */
+
         .success-result p {
-            margin-top: 20px; /* Espace supplémentaire au-dessus du texte */
-            width: 100%; /* Utilise toute la largeur disponible */
-            clear: both; /* Évite les chevauchements */
+            margin-top: 20px;
+            width: 100%;
+            clear: both;
         }
 
         .lock-body {
@@ -341,7 +340,7 @@
             }
         }
 
-        /* Ajustements responsifs */
+
         @media (max-width: 480px) {
             .padlock-container {
                 width: 150px;
@@ -360,7 +359,7 @@
             }
         }
 
-        /* Responsive design */
+
         @media (max-width: 480px) {
             .result-container {
                 padding: 20px;
@@ -402,7 +401,6 @@
         </h1>
 
         {% if isTimeout %}
-            <!-- Temps écoulé : toujours afficher Game Over -->
             <div class="failure-result">
                 <img src="{{ asset('images/game-over.png') }}" alt="Game Over" />
                 <div class="score">
@@ -415,7 +413,6 @@
                 </div>
             </div>
         {% else %}
-            <!-- Résultat d'une partie (succès ou échec) -->
             {% if isSuccess %}
                 <div class="success-result">
                     <div class="padlock-container">
@@ -440,13 +437,13 @@
             </div>
 
             {% if parties_jouees < 4 %}
-                <!-- Le joueur peut encore rejouer -->
+
                 <div class="replay-button">
                     <a href="{{ path('commencer_jeu') }}" class="btn btn-primary">🔄 Rejouer</a>
                     <a href="{{ path('accueil') }}" class="btn btn-primary">🏠 Retour à l'Accueil</a>
                 </div>
             {% else %}
-                <!-- Le joueur a terminé les 4 parties -->
+
                 <div class="final-message">
                    <h2> 🏆 Mission Accomplie ! 🏆</h2>
                     <p>🌿 Vous avez joué avec toutes les plantes disponibles 🌿</p>

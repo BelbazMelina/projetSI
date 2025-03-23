@@ -32,7 +32,7 @@ class JeuController extends AbstractController
         SessionInterface $session,
         Request $request
     ): Response {
-        // Initialisation de la session
+
         if ($request->query->get('from') === 'accueil' || !$session->has('global_start_time')) {
             $session->set('global_start_time', time());
             $session->set('parties_jouees', 0);
@@ -41,11 +41,11 @@ class JeuController extends AbstractController
             $session->set('score', 0);
         }
 
-        // Récupérer le nombre de parties jouées
+
         $partiesJouees = count($session->get('plantes_jouees', []));
         $session->set('parties_jouees', $partiesJouees);
 
-        // Vérifier si toutes les plantes ont été jouées
+
         if ($partiesJouees >= 4) {
             return $this->redirectToRoute('resultat', [
                 'success' => true,
@@ -55,7 +55,7 @@ class JeuController extends AbstractController
             ]);
         }
 
-        // Vérification du temps
+
         $globalStartTime = $session->get('global_start_time');
         $timeElapsed = time() - $globalStartTime;
         $timeRemaining = 300 - $timeElapsed;
@@ -68,7 +68,7 @@ class JeuController extends AbstractController
             ]);
         }
 
-        // Sélection de la plante
+
         $plantesJouees = $session->get('plantes_jouees', []);
         $plante = $planteRepository->findRandomPlante($plantesJouees);
 
@@ -83,7 +83,7 @@ class JeuController extends AbstractController
 
         $molecules = $moleculeRepository->findBy(['plante' => $plante->getId()]);
 
-        // Création de la partie
+
         $partie = new Partie();
         $partie->setPlante($plante);
         $partie->setEtat('en_cours');
@@ -92,14 +92,14 @@ class JeuController extends AbstractController
         $entityManager->persist($partie);
         $entityManager->flush();
 
-        // Mise à jour de la session
+
         $plantesJouees[] = $plante->getId();
         $session->set('plantes_jouees', $plantesJouees);
         $session->set('plante_id', $plante->getId());
         $session->set('partie_id', $partie->getId());
         $session->set('molecules', $molecules);
 
-        // Mettre à jour le nombre de parties jouées
+
         $partiesJouees = count($plantesJouees);
         $session->set('parties_jouees', $partiesJouees);
 
@@ -126,20 +126,19 @@ class JeuController extends AbstractController
         $timeElapsed = $currentTime - $globalStartTime;
         $timeRemaining = 300 - $timeElapsed;
 
-        // Récupérer le score existant depuis la session
+
         $score = $session->get('score', 0);
 
         $cadenas = $cadenasRepository->findOneBy(['plante' => $planteId]);
         $motSecret = $cadenas->getMotSecret();
 
-        // Récupérer la partie en cours
+
         $partie = $entityManager->getRepository(Partie::class)->find($partieId);
         $codeSaisi = trim(strtolower($data['code']));
         $motSecret = trim(strtolower($motSecret));
 
         $isCodeCorrect = ($codeSaisi === $motSecret);
 
-        // Si le temps est écoulé
         if ($timeRemaining <= 0) {
             if ($partie) {
                 $partie->setEtat($isCodeCorrect ? 'terminee' : 'echec');
@@ -159,7 +158,7 @@ class JeuController extends AbstractController
             ]);
         }
 
-        // Si le code est correct
+
         if ($isCodeCorrect) {
             $score += 1;
             $session->set('score', $score);
@@ -186,7 +185,7 @@ class JeuController extends AbstractController
             ]);
         }
 
-        // Si le code est incorrect
+       
         if ($partie) {
             $partie->setEtat('echec');
             $partie->setScore($score);
