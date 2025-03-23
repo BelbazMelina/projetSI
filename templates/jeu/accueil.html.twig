@@ -121,12 +121,112 @@
                 font-size: 1rem;
             }
         }
+        .example-box {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px auto; /* centré */
+            background-color: #f8fafc;
+            text-align: left;
+            cursor: pointer;
+            max-width: 400px;
+            transition: all 0.3s ease;
+        }
+
+        .example-box:hover {
+            background-color: #f0f0f0;
+        }
+
+        .example-content {
+            display: none;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .example-box.active .example-content {
+            display: block;
+        }
+
+        .example-box h4 {
+            margin: 0;
+            font-size: 1rem;
+            color: #4a5568;
+            text-align: center;
+            position: relative;
+        }
+
+        .example-box h4::after {
+            content: '▼';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+        }
+
+        .example-box.active h4::after {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .rules {
+            margin-top: 15px;
+            padding-left: 20px;
+        }
+
+        .rules li {
+            margin-bottom: 10px;
+        }
+        h1 {
+            font-family: 'Poppins', sans-serif; /* Police Poppins */
+            color: #2c5282; /* Bleu foncé élégant */
+            font-size: 1.5rem; /* Taille réduite */
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 1px;
+            position: relative;
+            display: inline-block;
+            animation: fadeInUp 1s ease-out forwards;
+        }
+
+        h1::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background-color: #3182ce; /* Bleu vif */
+            bottom: -8px;
+            left: 0;
+            transform: scaleX(0);
+            transform-origin: bottom right;
+            animation: scaleIn 0.6s ease-out forwards;
+        }
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        @keyframes scaleIn {
+            0% {
+                transform: scaleX(0);
+            }
+            100% {
+                transform: scaleX(1);
+            }
+        }
+
     </style>
 {% endblock %}
 
 {% block body %}
     <div class="container">
-        <h1>Le Code Secret des Plantes</h1>
+        <h1>Le Jardin Des Secrets</h1>
 
         <div class="card">
             <div class="card-body">
@@ -137,24 +237,31 @@
                 <p>🌱 Assemblez les lettres, afin de former le code secret pour afficher la plante !</p>
                 <p> - Si le code inséré est incorrect, une plante sauvage sera affichée; sinon, le cadenas s'ouvrira et la plante dont les principales molécules sera affichée.</p>
                 <div class="example-box">
-                    <h3>Exemple :</h3>
+                    <h4><i>Exemple <br>(Cliquez pour voir)</i></h4>
                     <div class="example-content">
                         <p>Formule chimique : <strong>H₂O</strong></p>
                         <p>Nombre de molécules : <strong>3</strong></p>
                         <p>Lettre correspondante : <strong>c</strong></p>
-                    </div>
                     <p class="note">
-                        Continuez ainsi avec les autres formules pour former le code complet. Voici quelques règles importantes :
+                        Continuez ainsi avec les autres formules pour former le code complet. Voici quelques règles importantes:
                     </p>
                     <ul class="rules">
                         <li>Si le nombre dépasse <strong>26</strong> (le nombre de lettres de l'alphabet), recommencez au début. Par exemple : <strong>27 = a</strong>.</li>
                         <li>Si le nombre dépasse <strong>52</strong> (26 + 26), recommencez également au début. Par exemple : <strong>53 = a</strong>.</li>
                         <li>Le même principe s'applique pour les nombres encore plus grands.</li>
                     </ul>
+                    </div>
                 </div>
             </div>
         </div>
 
         <a href="{{ path('commencer_jeu', {'from': 'accueil'}) }}" class="btn btn-primary">Commencer</a>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('.example-box').addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        });
+    </script>
 {% endblock %}
