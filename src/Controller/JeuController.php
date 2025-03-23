@@ -129,22 +129,6 @@ class JeuController extends AbstractController
         // Récupérer le score existant depuis la session
         $score = $session->get('score', 0);
 
-        // Vérifier si le temps est écoulé
-        if ($timeRemaining <= 0) {
-            // Réinitialiser le score à 0 quand le temps est écoulé
-            $session->set('score', 0);
-
-            return new JsonResponse([
-                'status' => 'timeout',
-                'redirectUrl' => $this->generateUrl('resultat', [
-                    'success' => false,
-                    'timeout' => true,
-                    'parties_jouees' => $session->get('parties_jouees', 0),
-                    'score' => 0 // Score réinitialisé
-                ])
-            ]);
-        }
-
         $cadenas = $cadenasRepository->findOneBy(['plante' => $planteId]);
         $motSecret = $cadenas->getMotSecret();
 
@@ -153,12 +137,33 @@ class JeuController extends AbstractController
         $codeSaisi = trim(strtolower($data['code']));
         $motSecret = trim(strtolower($motSecret));
 
-        if ($codeSaisi === $motSecret) {
-            // Incrémenter le score
+        $isCodeCorrect = ($codeSaisi === $motSecret);
+
+        // Si le temps est écoulé
+        if ($timeRemaining <= 0) {
+            if ($partie) {
+                $partie->setEtat($isCodeCorrect ? 'terminee' : 'echec');
+                $partie->setScore($score);
+                $entityManager->persist($partie);
+                $entityManager->flush();
+            }
+
+            return new JsonResponse([
+                'status' => 'timeout',
+                'redirectUrl' => $this->generateUrl('resultat', [
+                    'success' => $isCodeCorrect,
+                    'timeout' => true,
+                    'parties_jouees' => $session->get('parties_jouees', 0),
+                    'score' => $score
+                ])
+            ]);
+        }
+
+        // Si le code est correct
+        if ($isCodeCorrect) {
             $score += 1;
             $session->set('score', $score);
 
-            // Mettre à jour le nombre de parties jouées
             $plantesJouees = $session->get('plantes_jouees', []);
             $partiesJouees = count($plantesJouees);
             $session->set('parties_jouees', $partiesJouees);
@@ -184,7 +189,7 @@ class JeuController extends AbstractController
         // Si le code est incorrect
         if ($partie) {
             $partie->setEtat('echec');
-            $partie->setScore($score); // Garder le score actuel
+            $partie->setScore($score);
             $entityManager->persist($partie);
             $entityManager->flush();
         }
@@ -199,7 +204,6 @@ class JeuController extends AbstractController
             ])
         ]);
     }
-
     #[Route('/resultat', name: 'resultat')]
     public function showResult(
         Request $request,

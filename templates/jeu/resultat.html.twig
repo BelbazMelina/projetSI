@@ -392,9 +392,7 @@
 {% block body %}
     <div class="result-container">
         <h1>
-            {% if parties_jouees >= 4 %}
-                🏆 Mission Accomplie ! 🏆
-            {% elseif isTimeout %}
+            {% if isTimeout %}
                 ⏰ Temps Écoulé ! ⏰
             {% elseif isSuccess %}
                 ✨ Découverte Réussie ! ✨
@@ -403,27 +401,21 @@
             {% endif %}
         </h1>
 
-        {% if parties_jouees >= 4 %}
-            <div class="score">
-                <p>🌿 Vous avez joué avec toutes les plantes de notre collection ! 🌿</p>
-                <h2>🏆 Score Final : {{ score }} points</h2>
-                <p>📚 Parties jouees : {{ parties_jouees }}/4 plantes </p>
-                <div class="new-game-button">
-                    <a href="{{ path('accueil') }}" class="btn btn-primary">🏠 Retour à l'Accueil</a>
-                </div>
-            </div>
-        {% elseif isTimeout %}
+        {% if isTimeout %}
+            <!-- Temps écoulé : toujours afficher Game Over -->
             <div class="failure-result">
                 <img src="{{ asset('images/game-over.png') }}" alt="Game Over" />
                 <div class="score">
-                    <p>⏰ Le temps s'est écoulé ! Vous avez joué {{ parties_jouees|default(0) }} parties en 5 minutes.</p>
+                    <h2> 🏆 Mission Accomplie ! 🏆</h2>
+                    <p>⏰ Le temps s'est écoulé ! Vous avez joué {{ parties_jouees|default(0) }} parties.</p>
                     <h2>🎯 Score Final : {{ score }} points</h2>
                     <div class="new-game-button">
-                        <a href="{{ path('accueil') }}" class="btn btn-primary">🔄 Nouvelle Exploration</a>
+                        <a href="{{ path('accueil') }}" class="btn btn-primary">🏠 Retour à l'Accueil</a>
                     </div>
                 </div>
             </div>
         {% else %}
+            <!-- Résultat d'une partie (succès ou échec) -->
             {% if isSuccess %}
                 <div class="success-result">
                     <div class="padlock-container">
@@ -447,9 +439,22 @@
                 <p>📚 Nombre de parties jouées : {{ parties_jouees }}/4</p>
             </div>
 
-            <div class="replay-button">
-                <a href="{{ path('commencer_jeu') }}" class="btn btn-primary">🔄 Une autre partie</a>
-            </div>
+            {% if parties_jouees < 4 %}
+                <!-- Le joueur peut encore rejouer -->
+                <div class="replay-button">
+                    <a href="{{ path('commencer_jeu') }}" class="btn btn-primary">🔄 Rejouer</a>
+                </div>
+            {% else %}
+                <!-- Le joueur a terminé les 4 parties -->
+                <div class="final-message">
+                   <h2> 🏆 Mission Accomplie ! 🏆</h2>
+                    <p>🌿 Vous avez joué avec toutes les plantes disponibles 🌿</p>
+                    <h2>🎯 Score Final : {{ score }} points</h2>
+                    <div class="new-game-button">
+                        <a href="{{ path('accueil') }}" class="btn btn-primary">🏠 Retour à l'Accueil</a>
+                    </div>
+                </div>
+            {% endif %}
         {% endif %}
     </div>
 {% endblock %}
