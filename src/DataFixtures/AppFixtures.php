@@ -67,29 +67,29 @@ class AppFixtures extends Fixture
         $manager->persist($cadenas4);
 
         // Création des molécules pour chaque plante
-        $this->createMolecule($manager, 1, 'C14H16', 'Chamazulene.png', 'Donne la couleur bleue à l\'huile essentielle, anti-inflammatoire', $plante1);
-        $this->createMolecule($manager, 2, 'C15H26O', 'Bisabolol.png', 'Apaise, cicatrise, très utilisé en cosmétique', $plante1);
-        $this->createMolecule($manager, 3, 'C15H10O5', 'Apigenine.png', 'Effet relaxant, antioxydant, favorise le sommeil', $plante1);
-        $this->createMolecule($manager, 4, 'C15H24', 'Alpha-Farnesene.png', 'Protège contre les insectes, antimicrobien', $plante1);
-        $this->createMolecule($manager, 5, 'C15H20O3', 'Matricine.png', 'Précurseur du chamazulène, puissant anti-inflammatoire', $plante1);
+        $this->createMolecule($manager, 1, 'C14_H16', 'Chamazulene.png', 'Donne la couleur bleue à l\'huile essentielle, anti-inflammatoire', $plante1);
+        $this->createMolecule($manager, 2, 'C15_H26_O', 'Bisabolol.png', 'Apaise, cicatrise, très utilisé en cosmétique', $plante1);
+        $this->createMolecule($manager, 3, 'C15_H10_O5', 'Apigenine.png', 'Effet relaxant, antioxydant, favorise le sommeil', $plante1);
+        $this->createMolecule($manager, 4, 'C15_H24', 'Alpha-Farnesene.png', 'Protège contre les insectes, antimicrobien', $plante1);
+        $this->createMolecule($manager, 5, 'C15_H20_O3', 'Matricine.png', 'Précurseur du chamazulène, puissant anti-inflammatoire', $plante1);
 
-        $this->createMolecule($manager, 6, 'C8H10N4O2', 'Caféine.png', 'Stimulant, améliore la concentration', $plante2);
-        $this->createMolecule($manager, 7, 'C16H18O9', 'chlorogenic acide.png', 'Antioxydant, régule le métabolisme', $plante2);
-        $this->createMolecule($manager, 8, 'C7H7NO2', 'Trigonelline.png', 'Donne l\'arôme du café, neuroprotecteur', $plante2);
-        $this->createMolecule($manager, 9, 'C7H8N4O2', 'Théobromine.png', 'Effet relaxant, dilate les vaisseaux sanguins', $plante2);
-        $this->createMolecule($manager, 10, 'C7H6O5', 'quinic acid.png', 'Contribue à l\'acidité du café, antioxydant', $plante2);
+        $this->createMolecule($manager, 6, 'C8_H10_N4_O2', 'Caféine.png', 'Stimulant, améliore la concentration', $plante2);
+        $this->createMolecule($manager, 7, 'C16_H18_O9', 'chlorogenic acide.png', 'Antioxydant, régule le métabolisme', $plante2);
+        $this->createMolecule($manager, 8, 'C7_H7_N_O2', 'Trigonelline.png', 'Donne l\'arôme du café, neuroprotecteur', $plante2);
+        $this->createMolecule($manager, 9, 'C7_H8_N4_O2', 'Théobromine.png', 'Effet relaxant, dilate les vaisseaux sanguins', $plante2);
+        $this->createMolecule($manager, 10, 'C7_H6_O5', 'quinic acid.png', 'Contribue à l\'acidité du café, antioxydant', $plante2);
 
-        $this->createMolecule($manager, 11, 'C18H16O8', 'Acide rosmarinique.png', 'Antioxydant puissant, anti-inflammatoire', $plante3);
-        $this->createMolecule($manager, 12, 'C10H18O', 'Cinéole.png', 'Améliore la concentration, expectorant', $plante3);
-        $this->createMolecule($manager, 13, 'C10H16O', 'Camphre.png', 'Stimulant, favorise la circulation sanguine', $plante3);
-        $this->createMolecule($manager, 14, 'C10H16', 'Alpha-pinène.png', 'Antimicrobien, améliore la respiration', $plante3);
-        $this->createMolecule($manager, 15, 'C10H18O', 'Bornéol.png', 'Apaisant, antibactérien', $plante3);
+        $this->createMolecule($manager, 11, 'C18_H16_O8', 'Acide rosmarinique.png', 'Antioxydant puissant, anti-inflammatoire', $plante3);
+        $this->createMolecule($manager, 12, 'C10_H18_O', 'Cinéole.png', 'Améliore la concentration, expectorant', $plante3);
+        $this->createMolecule($manager, 13, 'C10_H16_O', 'Camphre.png', 'Stimulant, favorise la circulation sanguine', $plante3);
+        $this->createMolecule($manager, 14, 'C10_H16', 'Alpha-pinène.png', 'Antimicrobien, améliore la respiration', $plante3);
+        $this->createMolecule($manager, 15, 'C10_H18_O', 'Bornéol.png', 'Apaisant, antibactérien', $plante3);
 
-        $this->createMolecule($manager, 16, 'C10H18O', 'Linalool.png', 'Antiseptique, attire les pollinisateurs', $plante4);
-        $this->createMolecule($manager, 17, 'C12H20O2', 'Linalyl acétate.png', 'Apaisant, contribue à l\'odeur', $plante4);
-        $this->createMolecule($manager, 18, 'C10H16O', 'Camphre.png', 'Défense contre les insectes et antifongique', $plante4);
-        $this->createMolecule($manager, 19, 'C10H18O', 'Géraniol.png', 'Antibactérien, attire les pollinisateurs', $plante4);
-        $this->createMolecule($manager, 20, 'C10H16', 'Ocimène.png', 'Protection contre les parasites et production d\'arômes', $plante4);
+        $this->createMolecule($manager, 16, 'C10_H18_O', 'Linalool.png', 'Antiseptique, attire les pollinisateurs', $plante4);
+        $this->createMolecule($manager, 17, 'C12_H20_O2', 'Linalyl acétate.png', 'Apaisant, contribue à l\'odeur', $plante4);
+        $this->createMolecule($manager, 18, 'C10_H16_O', 'Camphre.png', 'Défense contre les insectes et antifongique', $plante4);
+        $this->createMolecule($manager, 19, 'C10_H18_O', 'Géraniol.png', 'Antibactérien, attire les pollinisateurs', $plante4);
+        $this->createMolecule($manager, 20, 'C10_H16', 'Ocimène.png', 'Protection contre les parasites et production d\'arômes', $plante4);
 
         $manager->flush();
     }

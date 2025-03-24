@@ -186,6 +186,7 @@
                                 <h3 class="card-title">Formule {{ loop.index }}</h3>
                                 <div class="formula-box mb-3">
                                     <h4>{{ molecule.formuleChimique }}</h4>
+                                    <h3>{{ molecule.image|replace({'.png': ''}) }}</h3>
                                 </div>
                                 {% if molecule.image %}
                                     <img src="{{ asset('images/molecules/' ~ molecule.image) }}"
